@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Local Game</title>
+    <style>
+        * {
+            /*先清除默认样式*/
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            background-color: #dedfde;
+        }
+
+        #card{
+            position: absolute;
+            left: 55%;
+            top: 100px;
+            height: 450px;
+            width: 450px;
+            opacity: 1;
+            text-align: center;
+            transform: translateX(-50%);
+            animation: opening 2s forwards;
+        }
+
+        .header {
+            background-color: black;
+            color: #eff0ef;
+            height: 80%;
+            font-size: 40px;
+            transition-duration: 1s;
+            position: relative;
+            text-align: center;
+        }
+
+        #header{
+            display: block;
+            opacity: 1;
+        }
+
+        #header:hover{
+            background-color: #eff0ef;
+            color: black;
+        }
+
+        #setter{
+            display: none;
+            opacity: 0;
+            animation: colorWtoB 3s;
+        }
+
+        .container {
+            height: 20%;
+            font-size: 20px;
+            background-color: silver;
+            text-align: center;
+            opacity: 1;
+            position: relative;
+            display: block;
+            width: 450px;
+        }
+
+        #confirm {
+            border: none;
+            opacity: 0;
+            display: none;
+            background-color: #eff0ef;
+            transition-duration: 1s;
+        }
+
+        #confirm:hover{
+            cursor: pointer;
+            background-color: #cccccc;
+        }
+
+        #board {
+            position: absolute;
+            left: 55%;
+            top: 100px;
+            transform: translateX(-50%);
+            background-color: #ebd58b;
+            opacity: 0;
+            display: none;
+        }
+
+        #counter{
+            width: 200px;
+            height: 80px;
+            border: none;
+            position: absolute;
+            top: 100px;
+            left: 75%;
+            font-size: 20px;
+            color: black;
+            background-color: #eff0ef;
+            text-align: center;
+            line-height: 80px;
+            opacity: 0;
+            transition-duration: 1s;
+        }
+
+        .buttons {
+            width: 200px;
+            height: 400px;
+            position: absolute;
+            left: 20%;
+            top: 100px;
+        }
+
+        .button {
+            width: 200px;
+            height: 80px;
+            border: none;
+            font-size: 20px;
+            color: black;
+            background-color: #eff0ef;
+            margin-bottom: 20px;
+        }
+
+        #changer {
+            text-align: center;
+            line-height: 80px;
+            transition-duration: 1s;
+            animation: appear 2s forwards;
+            display: none;
+        }
+
+        #start{
+            transition-duration: 1s;
+            animation: appear 2s forwards;
+            opacity: 1;
+        }
+
+        #start:hover {
+            cursor: pointer;
+            background-color: #cccccc;
+        }
+
+        #setting{
+            transition-duration: 1s;
+            animation: appear 2s forwards;
+            opacity: 1;
+        }
+
+        #setting:hover{
+            cursor: pointer;
+            background-color: #cccccc;
+        }
+
+        #clear {
+            transition-duration: 1s;
+            animation: appear 2s forwards;
+            display: none;
+        }
+
+        #clear:hover {
+            cursor: pointer;
+            background-color: #cccccc;
+        }
+
+        .center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes toHide {
+            from{
+                opacity:1;
+            }
+            to{
+                opacity:0;
+            }
+        }
+
+        @keyframes opening {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes toBlack {
+            from {
+                background-color: #eff0ef;
+                color: black;
+            }
+            to {
+                background-color: black;
+                color: #eff0ef;
+            }
+        }
+
+        @keyframes toWhite {
+            from {
+                background-color: black;
+                color: #eff0ef;
+            }
+            to {
+                background-color: #eff0ef;
+                color: black;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id= "counter">
+    <span id = "num">90</span> s
+</div>
+
+<div class = "buttons">
+    <div id="changer" class = "button">
+        Current Color:
+        <span id="color">Black</span>
+    </div>
+    <button id = "start" class = "button">
+        Start
+    </button>
+    <button id="clear" class = "button" onclick="clearButton()">
+        Clear
+    </button>
+    <button id = "setting" class = "button">
+        Setting
+    </button>
+</div>
+
+<div id = "card">
+    <div class = "header" id = "setter">
+        <h1 class = "center-text">Time limit: <br>
+        <label>
+            <input type= "number" id = "getTime" value="90">
+        </label>
+        </h1>
+    </div>
+    <div class="header" id = "header">
+        <h1 class = "center-text">Chess</h1>
+    </div>
+    <div class="container" id = "container">
+        <p class = "center-text">Two players</p>
+    </div>
+        <button class="container" id = "confirm">
+            Confirm
+        </button>
+</div>
+<div>
+    <canvas id="board"></canvas>
+</div>
+<script type="text/javascript">
+    // 初始化棋盘
+    const lineNumber = 15; // 棋盘行数
+    const lineWidth = 30; // 棋盘每行宽度: 30px
+    const board = document.getElementById("board"); // 获取棋盘 canvas 元素
+    const context = board.getContext('2d'); // 获取棋盘 canvas 上下文
+    // Chess List: 0 refer to empty, 1 refer to black, 2 refer to white
+    const chessList = new Array(lineNumber);
+    let second = 90;
+
+    for (let i = 0; i < lineNumber; i++) {
+        chessList[i] = new Array(lineNumber);
+        for (let j = 0; j < lineNumber; j++) {
+            chessList[i][j] = 0;
+        }
+    }
+
+    // 初始化棋盘
+    board.height = lineNumber * lineWidth;
+    board.width = lineNumber * lineWidth;
+    context.strokeStyle = "#000";
+    context.lineWidth = 1;
+
+    // 绘制棋盘
+    for (let i = 0; i < lineNumber; i++) {
+        context.beginPath();
+        context.moveTo(lineWidth / 2 + i * lineWidth, lineWidth / 2);//Draw 15 lines in the vertical direction 30px apart.
+        context.lineTo(lineWidth / 2 + i * lineWidth, lineWidth * lineNumber - lineWidth / 2);
+        context.stroke();
+        context.moveTo(lineWidth / 2, lineWidth / 2 + i * lineWidth);//Draw 15 horizontal lines 30px apart. The board is 14 x 14;
+        context.lineTo(lineWidth * lineNumber - lineWidth / 2, lineWidth / 2 + i * lineWidth);
+        context.stroke();
+    }
+
+    /**
+     * 绘制棋子(底层api, 小心使用)
+     * 两个颜色参数以达到渐变效果
+     * @param x 棋子 x 坐标
+     * @param y 棋子 y 坐标
+     * @param color1 棋子颜色 (外围部分)
+     * @param color2 棋子颜色 (中心部分)
+     */
+    function drawPiece(x, y, color1, color2) {
+        if (x > lineNumber || y > lineNumber || x < 0 || y < 0) {
+            return;
+        }
+        context.beginPath();
+        context.arc(lineWidth / 2 + x * lineWidth, lineWidth / 2 + y * lineWidth, 13, 0, 2 * Math.PI);
+        const g = context.createRadialGradient(lineWidth / 2 + x * lineWidth, lineWidth / 2 + y * lineWidth, 13, lineWidth / 2 + x * lineWidth, lineWidth / 2 + y * lineWidth, 0);//Set the gradient
+        g.addColorStop(0, color1);
+        g.addColorStop(1, color2);
+        context.fillStyle = g;
+        context.fill();
+        context.closePath();
+    }
+
+    /**
+     * 清除一个棋子
+     * @param x 棋子 x 坐标
+     * @param y 棋子 y 坐标
+     */
+    function clear(x, y) {
+        context.clearRect(x * lineWidth, y * lineWidth, lineWidth, lineWidth);
+        context.beginPath();
+        if (x === 0) {
+            context.moveTo(lineWidth / 2, y * lineWidth + lineWidth / 2);
+        } else {
+            context.moveTo(x * lineWidth, y * lineWidth + lineWidth / 2);
+        }
+        if (x === lineNumber - 1) {
+            context.lineTo(x * lineWidth + lineWidth / 2, y * lineWidth + lineWidth / 2);
+        } else {
+            context.lineTo(x * lineWidth + lineWidth, y * lineWidth + lineWidth / 2);
+        }
+        if (y === 0) {
+            context.moveTo(x * lineWidth + lineWidth / 2, lineWidth / 2);
+        } else {
+            context.moveTo(x * lineWidth + lineWidth / 2, y * lineWidth);
+        }
+        if (y === lineNumber - 1) {
+            context.lineTo(x * lineWidth + lineWidth / 2, y * lineWidth + lineWidth / 2);
+        } else {
+            context.lineTo(x * lineWidth + lineWidth / 2, y * lineWidth + lineWidth);
+        }
+        context.stroke();
+        context.closePath();
+    }
+
+    /**
+     * 绘制黑色棋子
+     * @param x 棋子 x 坐标
+     * @param y 棋子 y 坐标
+     */
+    function drawBlack(x, y) {
+        drawPiece(x, y, '#0A0A0A', '#636766');
+        chessList[x][y] = 1;
+    }
+
+    /**
+     * 绘制白色棋子
+     * @param x 棋子 x 坐标
+     * @param y 棋子 y 坐标
+     */
+    function drawWhite(x, y) {
+        drawPiece(x, y, '#D1D1D1', '#F9F9F9');
+        chessList[x][y] = 2;
+    }
+
+    /**
+     * 绘制黑色预览棋子
+     * 这个棋子颜色会比原来的淡一些 但是颜色我挑的不是很好 可以换个看看
+     * @param x 棋子 x 坐标
+     * @param y 棋子 y 坐标
+     */
+    function drawBlackPreview(x, y) {
+        drawPiece(x, y, '#696969', '#9E9E9E');
+    }
+
+    /**
+     * 绘制白色预览棋子
+     * 这个棋子颜色会比原来的淡一些 但是颜色我挑的不是很好 可以换个看看
+     * @param x 棋子 x 坐标
+     * @param y 棋子 y 坐标
+     */
+    function drawWhitePreview(x, y) {
+        drawPiece(x, y, '#A6A6A6', '#CFCFCF');
+    }
+
+    // 添加鼠标点击事件, 生成棋子
+    board.addEventListener('click', function (e) {
+        const x = Math.round((e.offsetX - lineWidth / 2) / lineWidth);
+        const y = Math.round((e.offsetY - lineWidth / 2) / lineWidth);
+        if (x < 0 || y < 0 || x > lineNumber || y > lineNumber) {
+            return;
+        }
+        if (chessList[x][y] !== 0) {
+            return;
+        }
+        if (getState() === 1) {
+            drawBlack(x, y);
+        }else {
+            drawWhite(x, y);
+        }
+        if(isEnd(x, y)){
+            ending();
+        }
+        changeState();
+
+        // 重置预览棋子坐标, 防止预览棋子和棋子重叠
+        preX = -1;
+        preY = -1;
+        stopTime(); //暂停时间
+        tim = second;       //时间重置
+        timer();       //计时开始
+    });
+
+    //时间倒计时
+    let time;
+    let tim;
+    function timer(){
+        //如果时间结束还没下棋，游戏结束
+        if(tim < 0){
+            changeState();
+            ending();
+        }
+        document.getElementById('num').innerText = tim;
+        tim--;
+        time = setTimeout(timer, 1000);
+    }
+
+    //时间暂停
+    function stopTime(){
+        clearTimeout(time);
+        tim = NaN;
+    }
+
+    // 记录上一次的预览棋子坐标, 用于清除预览棋子
+    let preX = -1;
+    let preY = -1;
+
+    // 添加鼠标移动事件, 生成预览棋子
+    board.addEventListener('mousemove', function (e) {
+        // 获取棋子xy坐标
+        const x = Math.round((e.offsetX - lineWidth / 2) / lineWidth);
+        const y = Math.round((e.offsetY - lineWidth / 2) / lineWidth);
+        // 判断是否在棋盘内
+        if (x < 0 || y < 0 || x > lineNumber || y > lineNumber) {
+            return;
+        }
+        // 判断是否已经有棋子
+        if (chessList[x][y] !== 0) {
+            clear(preX, preY);
+            return;
+        }
+        // 判断是否和上次的预览棋子坐标一样
+        if (preX !== x || preY !== y) {
+            // 清除上次的预览棋子
+            clear(preX, preY);
+            if (getState() === 1) {
+                drawBlackPreview(x, y);
+            } else {
+                drawWhitePreview(x, y);
+            }
+            // 记录预览棋子坐标
+            preX = x;
+            preY = y;
+        }
+    });
+
+    function isEnd(x, y){
+        if (vertical(x, y) >= 5) {
+            return true;
+        }
+        if (horizontal(x, y) >= 5) {
+            return true;
+        }
+        if (rightToLeft(x, y) >= 5) {
+            return true;
+        }
+        return leftToRight(x, y) >= 5;
+    }
+
+    function isExist(x, y){
+        if (x > lineNumber || y > lineNumber) {
+            return false;
+        }
+        if (x < 0 || y < 0) {
+            return false;
+        }
+        return chessList[x][y] !== 0;
+    }
+
+    function vertical(x, y){
+        const type = chessList[x][y];
+        let counter = 1;
+        for (let i = 1; i < 5; i++) {
+            if(!isExist(x + i, y)){
+                break;
+            }
+            if(chessList[x + i][y] !== type){
+                break;
+            } else{
+                counter++;
+            }
+        }
+        for (let i = 1; i < 5; i++) {
+            if(!isExist(x - i, y)){
+                break;
+            }
+            if(chessList[x - i][y] !== type){
+                break;
+            }else{
+                counter++;
+            }
+        }
+        return counter;
+    }
+
+    function horizontal(x, y) {
+        const type = chessList[x][y]
+        let counter = 1;
+        for (let i = 1; i < 5; i++) {
+            if (!isExist(x, y + i)) {
+                break;
+            }
+            if (chessList[x][y + i] !== type) {
+                break;
+            } else {
+                counter++;
+            }
+        }
+        for (let i = 1; i < 5; i++) {
+            if (!isExist(x, y - i)) {
+                break;
+            }
+            if (chessList[x][y - i] !== type) {
+                break;
+            } else {
+                counter++;
+            }
+        }
+        return counter
+    }
+
+    function rightToLeft(x, y) {
+        const type = chessList[x][y]
+        let counter = 1;
+        for (let i = 1; i < 5; i++) {
+            if (!isExist(x - i, y + i)) {
+                break;
+            }
+            if (chessList[x - i][y + i] !== type) {
+                break;
+            } else {
+                counter++;
+            }
+        }
+        for (let i = 1; i < 5; i++) {
+            if (!isExist(x + i, y - i)) {
+                break;
+            }
+            if (chessList[x + i][y - i] !== type) {
+                break;
+            } else {
+                counter++;
+            }
+        }
+        return  counter;
+    }
+
+        function leftToRight(x, y) {
+            const type = chessList[x][y]
+            let counter = 1;
+            for (let i = 1; i < 5; i++) {
+                if (!isExist(x - i, y - i)) {
+                    break;
+                }
+                if (chessList[x - i][y - i] !== type) {
+                    break;
+                } else {
+                    counter++;
+                }
+            }
+            for (let i = 1; i < 5; i++) {
+                if (!isExist(x + i, y + i)) {
+                    break;
+                }
+                if (chessList[x + i][y + i] !== type) {
+                    break;
+                } else {
+                    counter++;
+                }
+            }
+            return counter;
+        }
+
+    // isBlack记录是否是黑棋走棋
+    let isBlack = true;
+
+    /**
+     * 推荐使用此函数来获取当前走棋方 1:黑棋 2:白棋
+     * @returns {number} 1 refers to black, 2 refers to white
+     */
+    function getState() {
+        if (isBlack) {
+            return 1;
+        } else {
+            return 2;
+        }
+    }
+    //游戏结束，要有什么东西
+    function ending(){
+        //TODO
+        const winner = getState() === 1 ? "Black" : "White";
+        alert( winner + " win, game over");
+        clearButton();
+        document.getElementById("counter").style.animation = 'toHide 2s ease-in-out forwards';
+        document.getElementById("changer").style.display = 'none';
+        document.getElementById("clear").style.display = 'none';
+        document.getElementById("board").style.display = 'none';
+        document.getElementById("card").style.animation = 'opening 2s ease-in-out forwards';
+        document.getElementById("start").style.display = 'block';
+        document.getElementById("setting").style.display = 'block';
+    }
+
+    // 清空棋盘
+    function clearButton() {
+        stopTime(); //暂停时间用
+        document.getElementById("num").innerText = "90";
+        for (let i = 0; i < lineNumber; i++) {
+            for (let j = 0; j < lineNumber; j++) {
+                if (chessList[i][j] !== 0) {
+                    clear(i, j);
+                    chessList[i][j] = 0;
+                }
+            }
+        }
+    }
+
+    //设定时间
+    const confirmButton = document.getElementById("confirm");
+    confirmButton.onclick = function(){
+        second = document.getElementById("getTime").value;
+        if (second <= 0){
+            second = 90;
+        }
+        document.getElementById("confirm").style.display = 'none';
+        document.getElementById("setter").style.display = 'none';
+        document.getElementById("container").style.display = 'block';
+        document.getElementById("container").style.animation = 'opening 2s ease-in-out forwards';
+        document.getElementById("header").style.display = 'block';
+        document.getElementById("header").style.animation = 'opening 2s ease-in-out forwards';
+    }
+
+    //时间设置按钮
+    const setButton = document.getElementById("setting");
+    setButton.onclick = function(){
+        document.getElementById("header").style.display = 'none';
+        document.getElementById("container").style.display = 'none';
+        document.getElementById("setter").style.display = 'block';
+        document.getElementById("setter").style.animation = 'opening 2s ease-in-out forwards';
+        document.getElementById("confirm").style.display = 'block';
+        document.getElementById("confirm").style.animation = 'opening 2s ease-in-out forwards';
+    }
+
+    //游戏开始
+    const startButton = document.getElementById('start');
+    startButton.onclick = function (){
+        clearButton();
+        document.getElementById("start").style.display = 'none';
+        document.getElementById("setting").style.display = 'none';
+        document.getElementById("card").style.animation = 'toHide 1s ease-in-out forwards';
+        document.getElementById("board").style.display = "block";
+        document.getElementById("clear").style.display = "block";
+        document.getElementById("changer").style.display = "block";
+        document.getElementById("board").style.animation = 'opening 2s ease-in-out forwards';
+        document.getElementById("counter").style.animation = 'opening 2s ease-in-out forwards';
+        tim = second;
+        timer();
+    }
+
+    // 下面是动画效果实现部分
+    const color = document.getElementById('color');
+    const changer = document.getElementById('changer');
+
+    function changeState() {
+        isBlack = !isBlack;
+        color.innerText = isBlack ? 'Black' : 'White';
+        if (isBlack) {
+            changer.style.animation = 'toWhite 1s ease-in-out forwards';
+        } else {
+            changer.style.animation = 'toBlack 1s ease-in-out forwards';
+        }
+    }
+</script>
+</body>
+</html>
