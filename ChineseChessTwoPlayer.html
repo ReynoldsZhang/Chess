@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chinese Chess</title>
+  <style>
+      * {
+          /*先清除默认样式*/
+          margin: 0;
+          padding: 0;
+      }
+
+      body {
+          font-family: Helvetica, Arial, sans-serif;
+          background-color: #dedfde;
+      }
+
+      #content{
+          opacity: 1;
+          display: block;
+      }
+
+      #board {
+          transform: translateX(-50%);
+          position: absolute;
+          left: 50%;
+          top: 100px;
+          background-color: #ebd58b;
+      }
+
+      #text{
+          position: absolute;
+          transform: translateX(-50%);
+          left: 50%;
+          top: 320px;
+          font-size: 40px;
+          font-style: oblique;
+          color: black;
+      }
+      .div{
+          width: 50px;
+          height: 50px;
+          border: solid 1px black;
+          border-radius: 50px;
+          font-size: 40px;
+          line-height: 40px;
+          text-align: center;
+          background-color: #ebd588;
+          left: 50%;
+          top: 100px;
+          position: absolute;
+      }
+
+      @keyframes toShow {
+          from{
+              opacity: 0;
+          }
+          to{
+              opacity: 1;
+          }
+      }
+  </style>
+</head>
+<body>
+<div id = "content">
+    <canvas id = "board"></canvas>
+    <div id = "text">楚河</div>
+    <div class = "div" id = "soldier">a</div>
+</div>
+
+<!--<script type = "text/javascript">-->
+<!--    class Chess{-->
+<!--       constructor(chessName, xSet, ySet) {-->
+<!--           this._chessName = chessName;-->
+<!--           this.xSet = xSet;-->
+<!--           this.ySet = ySet;-->
+<!--           chessList[xSet][ySet] = chessName;-->
+<!--       }-->
+<!--    }-->
+<!--</script>-->
+
+<script type = "text/javascript">
+    const lineHigh = 10;
+    const lineWidth = 9;
+    const line = 50;
+    const board = document.getElementById("board"); // 获取棋盘 canvas 元素
+    let context = board.getContext('2d'); // 获取棋盘 canvas 上下文
+    // Chess List: 0 refer to empty, 1 refer to black, 2 refer to white
+    const chessList = new Array(lineHigh);
+
+    for (let i = 0; i < lineHigh + 1; i++) {
+        chessList[i] = new Array(lineWidth);
+        for (let j = 0; j < lineWidth; j++) {
+            if(i === 5){
+                chessList[i][j] = -1;
+                continue;
+            }
+            chessList[i][j] = 0;
+        }
+    }
+
+    board.height = lineHigh * line;
+    board.width = lineWidth * line;
+    context.strokeStyle = "#000";
+    context.lineWidth = 1;
+
+    for (let i = 0; i < lineHigh; i++) {
+        context.beginPath();
+        context.moveTo(line / 2 + i * line, line / 2);
+        context.lineTo(line / 2 + i * line, (line * lineHigh - line / 2) / 2 - 11.5);
+        context.stroke();
+
+        context.beginPath();
+        context.moveTo(line / 2 + i * line, ((line * lineHigh - line / 2) / 2) + line -11.5);
+        context.lineTo(line / 2 + i * line, line * lineHigh - line / 2);
+        context.stroke();
+
+        if(i === 3){
+            context.beginPath();
+            context.moveTo(line / 2 + i * line, line / 2);
+            context.lineTo(line / 2 + (i + 2) * line, line * 3 - line / 2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(line / 2 + i * line, line * lineHigh - line / 2);
+            context.lineTo(line / 2 + (i + 2) * line, line * 8 - line / 2);
+            context.stroke();
+        }
+
+        if (i === 5){
+            context.beginPath();
+            context.moveTo(line / 2 + i * line, line / 2);
+            context.lineTo(line / 2 + (i - 2) * line, line * 3 - line / 2);
+            context.stroke();
+
+            context.beginPath();
+            context.moveTo(line / 2 + i * line, line * lineHigh - line / 2);
+            context.lineTo(line / 2 + (i - 2) * line, line * 8 - line / 2);
+            context.stroke();
+        }
+    }
+
+    for (let i = 0; i < lineWidth + 1; i++) {
+        context.moveTo(line / 2, line / 2 + i * line);//Draw 15 horizontal lines 30px apart. The board is 14 x 14;
+        context.lineTo(line * lineWidth - line / 2, line / 2 + i * line);
+        context.stroke();
+    }
+
+    document.getElementById("soldier").style.left = "50%";
+</script>
+
+</body>
+</html>
