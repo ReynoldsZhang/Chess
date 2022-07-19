@@ -3,96 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <title>Chinese Chess</title>
-  <style>
-      * {
-          /*先清除默认样式*/
-          margin: 0;
-          padding: 0;
-      }
+    <style>
+        * {
+            /*先清除默认样式*/
+            margin: 0;
+            padding: 0;
+        }
 
-      body {
-          font-family: Helvetica, Arial, sans-serif;
-          background-color: #dedfde;
-      }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            background-color: #dedfde;
+        }
 
-      p{
-          opacity: 1;
-          display: block;
-      }
+        #board-wrapper {
+            transform: translateX(-50%);
+            position: absolute;
+            left: 50%;
+            top: 100px;
+        }
 
-      #board {
-          transform: translateX(-50%);
-          position: absolute;
-          left: 50%;
-          top: 100px;
-          background-color: #ebd58b;
-      }
+        #board {
+            background-color: #ebd58b;
+        }
 
-      #text{
-          position: absolute;
-          transform: translateX(-50%);
-          left: 50%;
-          top: 320px;
-          font-size: 40px;
-          font-style: oblique;
-          color: black;
-      }
-      div{
-          width: 50px;
-          height: 50px;
-          border: solid 1px black;
-          border-radius: 50px;
-          font-size: 40px;
-          line-height: 40px;
-          text-align: center;
-          background-color: #ebd588;
-          position: absolute;
-      }
+        /*#text {*/
+        /*    position: absolute;*/
+        /*    transform: translateX(-50%);*/
+        /*    left: 50%;*/
+        /*    top: 320px;*/
+        /*    font-size: 40px;*/
+        /*    font-style: oblique;*/
+        /*    color: black;*/
+        /*}*/
 
-      @keyframes toShow {
-          from{
-              opacity: 0;
-          }
-          to{
-              opacity: 1;
-          }
-      }
-  </style>
+        .piece {
+            width: 50px;
+            height: 50px;
+            border: solid 1px black;
+            border-radius: 50px;
+            text-align: center;
+            background-color: #ebd588;
+            position: absolute;
+        }
+
+        .piece-name {
+            font-size: 40px;
+            font-family: WeiTi;
+            color: black;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @font-face {
+            font-family: 'WeiTi';
+            src: url('WeiTi.ttf') format('truetype');
+        }
+
+        @keyframes show {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
 </head>
 <body>
-<p>
-    <canvas id = "board"></canvas>
-    <p id = "text">楚河</p>
+<div id="board-wrapper">
+    <canvas id="board"></canvas>
+</div>
 
 
-<script type = "text/javascript">
+<script type="text/javascript">
+    const boardWrapper = document.getElementById('board-wrapper');
+
     class Chess {
-        color;
-        chessName;
-        xSet;
-        ySet;
-
         constructor(chessName, xSet, ySet, color) {
             this.chessName = chessName;
             this.xSet = xSet;
             this.ySet = ySet;
             this.color = color;
 
-            this.createPieces(xSet, ySet, chessName, true);
+            this.createPieces();
         }
 
-        createPieces(x, y, name, team){
-            const div = document.createElement("div");
-            div.setAttribute("",team ? "red" : "");
-            div.classList.add("pieces");
-            div.classList.add(team ? "red" : "green");
-            div.document.createTextNode(name);
-            board.rows[y].cells[x].appendChild(div);
+        createPieces() {
+            let div = document.createElement("div");
+            div.className = "piece";
+
+            div.style.left = this.xSet * 50 + "px";
+            div.style.top = this.ySet * 50 + "px";
+            div.innerHTML = "<div class='piece-name'>" + this.chessName + " </div>";
+            boardWrapper.appendChild(div);
+            // div.classList.add("pieces");
+            // div.classList.add(team ? "red" : "green");
+            // div.document.createTextNode(name);
+            // board.rows[y].cells[x].appendChild(div);
         }
     }
 </script>
 
-<script type = "text/javascript">
+<script type="text/javascript">
     const lineHigh = 10;
     const lineWidth = 9;
     const line = 50;
@@ -104,7 +118,7 @@
     for (let i = 0; i < lineHigh + 1; i++) {
         chessList[i] = new Array(lineWidth);
         for (let j = 0; j < lineWidth; j++) {
-            if(i === 5){
+            if (i === 5) {
                 chessList[i][j] = -1;
                 continue;
             }
@@ -124,11 +138,11 @@
         context.stroke();
 
         context.beginPath();
-        context.moveTo(line / 2 + i * line, ((line * lineHigh - line / 2) / 2) + line -11.5);
+        context.moveTo(line / 2 + i * line, ((line * lineHigh - line / 2) / 2) + line - 11.5);
         context.lineTo(line / 2 + i * line, line * lineHigh - line / 2);
         context.stroke();
 
-        if(i === 3){
+        if (i === 3) {
             context.beginPath();
             context.moveTo(line / 2 + i * line, line / 2);
             context.lineTo(line / 2 + (i + 2) * line, line * 3 - line / 2);
@@ -140,7 +154,7 @@
             context.stroke();
         }
 
-        if (i === 5){
+        if (i === 5) {
             context.beginPath();
             context.moveTo(line / 2 + i * line, line / 2);
             context.lineTo(line / 2 + (i - 2) * line, line * 3 - line / 2);
@@ -158,7 +172,9 @@
         context.lineTo(line * lineWidth - line / 2, line / 2 + i * line);
         context.stroke();
     }
-    chessList[0][0] = new Chess("car", 2, 2, "red");
+    chessList[0][0] = new Chess("车", 2, 2, "red");
+
+    new Chess("车", 2, 3, "red");
 </script>
 
 </body>
