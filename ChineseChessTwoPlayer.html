@@ -15,7 +15,7 @@
           background-color: #dedfde;
       }
 
-      #content{
+      p{
           opacity: 1;
           display: block;
       }
@@ -37,7 +37,7 @@
           font-style: oblique;
           color: black;
       }
-      .div{
+      div{
           width: 50px;
           height: 50px;
           border: solid 1px black;
@@ -46,8 +46,6 @@
           line-height: 40px;
           text-align: center;
           background-color: #ebd588;
-          left: 50%;
-          top: 100px;
           position: absolute;
       }
 
@@ -62,22 +60,37 @@
   </style>
 </head>
 <body>
-<div id = "content">
+<p>
     <canvas id = "board"></canvas>
-    <div id = "text">楚河</div>
-    <div class = "div" id = "soldier">a</div>
-</div>
+    <p id = "text">楚河</p>
 
-<!--<script type = "text/javascript">-->
-<!--    class Chess{-->
-<!--       constructor(chessName, xSet, ySet) {-->
-<!--           this._chessName = chessName;-->
-<!--           this.xSet = xSet;-->
-<!--           this.ySet = ySet;-->
-<!--           chessList[xSet][ySet] = chessName;-->
-<!--       }-->
-<!--    }-->
-<!--</script>-->
+
+<script type = "text/javascript">
+    class Chess {
+        color;
+        chessName;
+        xSet;
+        ySet;
+
+        constructor(chessName, xSet, ySet, color) {
+            this.chessName = chessName;
+            this.xSet = xSet;
+            this.ySet = ySet;
+            this.color = color;
+
+            this.createPieces(xSet, ySet, chessName, true);
+        }
+
+        createPieces(x, y, name, team){
+            const div = document.createElement("div");
+            div.setAttribute("",team ? "red" : "");
+            div.classList.add("pieces");
+            div.classList.add(team ? "red" : "green");
+            div.document.createTextNode(name);
+            board.rows[y].cells[x].appendChild(div);
+        }
+    }
+</script>
 
 <script type = "text/javascript">
     const lineHigh = 10;
@@ -145,8 +158,7 @@
         context.lineTo(line * lineWidth - line / 2, line / 2 + i * line);
         context.stroke();
     }
-
-    document.getElementById("soldier").style.left = "50%";
+    chessList[0][0] = new Chess("car", 2, 2, "red");
 </script>
 
 </body>
