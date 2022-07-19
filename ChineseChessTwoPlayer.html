@@ -20,25 +20,26 @@
             position: absolute;
             left: 50%;
             top: 100px;
+            animation: show 1s;
         }
 
         #board {
             background-color: #ebd58b;
         }
 
-        /*#text {*/
-        /*    position: absolute;*/
-        /*    transform: translateX(-50%);*/
-        /*    left: 50%;*/
-        /*    top: 320px;*/
-        /*    font-size: 40px;*/
-        /*    font-style: oblique;*/
-        /*    color: black;*/
-        /*}*/
+        p{
+            position: absolute;
+            transform: translateX(-50%);
+            left: 50%;
+            top: 230px;
+            font-size: 40px;
+            font-family: WeiTi,serif;
+            color: black;
+        }
 
         .piece {
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             border: solid 1px black;
             border-radius: 50px;
             text-align: center;
@@ -48,8 +49,7 @@
 
         .piece-name {
             font-size: 40px;
-            font-family: WeiTi;
-            color: black;
+            font-family: WeiTi,serif;
             position: absolute;
             top: 50%;
             left: 50%;
@@ -58,7 +58,7 @@
 
         @font-face {
             font-family: 'WeiTi';
-            src: url('WeiTi.ttf') format('truetype');
+            src: url('Image/WeiTi.ttf') format('truetype');
         }
 
         @keyframes show {
@@ -74,6 +74,7 @@
 <body>
 <div id="board-wrapper">
     <canvas id="board"></canvas>
+    <p>楚&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;河</p>
 </div>
 
 
@@ -86,22 +87,17 @@
             this.xSet = xSet;
             this.ySet = ySet;
             this.color = color;
-
             this.createPieces();
         }
 
         createPieces() {
             let div = document.createElement("div");
             div.className = "piece";
-
+            div.style.color = this.color;
             div.style.left = this.xSet * 50 + "px";
             div.style.top = this.ySet * 50 + "px";
             div.innerHTML = "<div class='piece-name'>" + this.chessName + " </div>";
             boardWrapper.appendChild(div);
-            // div.classList.add("pieces");
-            // div.classList.add(team ? "red" : "green");
-            // div.document.createTextNode(name);
-            // board.rows[y].cells[x].appendChild(div);
         }
     }
 </script>
@@ -172,9 +168,42 @@
         context.lineTo(line * lineWidth - line / 2, line / 2 + i * line);
         context.stroke();
     }
-    chessList[0][0] = new Chess("车", 2, 2, "red");
 
-    new Chess("车", 2, 3, "red");
+    //初始化所有棋子
+    chessList[0][0] = new Chess("车", 0, 0, "red");
+    chessList[0][8] = new Chess("车", 8, 0, "red");
+    chessList[10][0] = new Chess("车", 0, 9, "black");
+    chessList[10][8] = new Chess("车", 8, 9, "black");
+
+    chessList[0][1] = new Chess("马", 1, 0, "red");
+    chessList[0][7] = new Chess("马", 7, 0, "red");
+    chessList[10][1] = new Chess("马", 1, 9, "black");
+    chessList[10][7] = new Chess("马", 7, 9, "black");
+
+    chessList[0][2] = new Chess("相", 2, 0, "red");
+    chessList[0][6] = new Chess("相", 6, 0, "red");
+    chessList[10][2] = new Chess("象", 2, 9, "black");
+    chessList[10][6] = new Chess("象", 6, 9, "black");
+
+    chessList[0][3] = new Chess("士", 3, 0, "red");
+    chessList[0][5] = new Chess("士", 5, 0, "red");
+    chessList[10][3] = new Chess("士", 3, 9, "black");
+    chessList[10][5] = new Chess("士", 5, 9, "black");
+
+    chessList[2][1] = new Chess("炮", 1, 2, "red");
+    chessList[2][7] = new Chess("炮", 7, 2, "red");
+    chessList[8][1] = new Chess("炮", 1, 7, "black");
+    chessList[8][7] = new Chess("炮", 7, 7, "black");
+
+    chessList[0][4] = new Chess("帅", 4, 0, "red");
+    chessList[10][4] = new Chess("将", 4, 9, "black");
+
+    for (let i = 0; i < 9; i+=2) {
+        chessList[3][i] = new Chess("兵", i, 3, "red");
+        chessList[7][i] = new Chess("卒", i, 6, "black");
+    }
+    document.getElementById("board-wrapper").style.animation = "transform:rotate(180deg) 2s ease-in-ouy";
+
 </script>
 
 </body>
