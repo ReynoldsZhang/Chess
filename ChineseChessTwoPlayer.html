@@ -120,11 +120,6 @@
             this.createPieces();
         }
 
-        //获取棋子id
-        getChessID() {
-            return this.id;
-        }
-
         //获取棋子颜色
         getChessColor() {
             return this.color;
@@ -191,9 +186,9 @@
     let turn = "red";
 
     //初始化数组
-    for (let i = 0; i < columnsNumber; i++) {
-        chessList[i] = new Array(rowsNumbers);
-        for (let j = 0; j < rowsNumbers; j++) {
+    for (let i = 0; i < rowsNumbers; i++) {
+        chessList[i] = new Array(columnsNumber);
+        for (let j = 0; j < columnsNumber; j++) {
             chessList[i][j] = 0;
         }
     }
@@ -250,32 +245,32 @@
     }
 
     chessList[0][0] = new Chess("车", 0, 0, "red");
-    chessList[8][0] = new Chess("车", 8, 0, "red");
-    chessList[0][9] = new Chess("车", 0, 9, "black");
-    chessList[8][9] = new Chess("车", 8, 9, "black");
+    chessList[0][8] = new Chess("车", 8, 0, "red");
+    chessList[9][0] = new Chess("车", 0, 9, "black");
+    chessList[9][8] = new Chess("车", 8, 9, "black");
 
-    chessList[1][0] = new Chess("马", 1, 0, "red");
-    chessList[7][0] = new Chess("马", 7, 0, "red");
-    chessList[1][9] = new Chess("马", 1, 9, "black");
-    chessList[7][9] = new Chess("马", 7, 9, "black");
+    chessList[0][1] = new Chess("马", 1, 0, "red");
+    chessList[0][7] = new Chess("马", 7, 0, "red");
+    chessList[9][1] = new Chess("马", 1, 9, "black");
+    chessList[9][7] = new Chess("马", 7, 9, "black");
 
-    chessList[2][0] = new Chess("象", 2, 0, "red");
-    chessList[6][0] = new Chess("象", 6, 0, "red");
-    chessList[2][9] = new Chess("象", 2, 9, "black");
-    chessList[6][9] = new Chess("象", 6, 9, "black");
+    chessList[0][2] = new Chess("象", 2, 0, "red");
+    chessList[0][6] = new Chess("象", 6, 0, "red");
+    chessList[9][2] = new Chess("象", 2, 9, "black");
+    chessList[9][6] = new Chess("象", 6, 9, "black");
 
-    chessList[3][0] = new Chess("士", 3, 0, "red");
-    chessList[5][0] = new Chess("士", 5, 0, "red");
-    chessList[3][9] = new Chess("士", 3, 9, "black");
-    chessList[5][9] = new Chess("士", 5, 9, "black");
+    chessList[0][3] = new Chess("士", 3, 0, "red");
+    chessList[0][5] = new Chess("士", 5, 0, "red");
+    chessList[9][3] = new Chess("士", 3, 9, "black");
+    chessList[9][5] = new Chess("士", 5, 9, "black");
 
-    chessList[1][2] = new Chess("炮", 1, 2, "red");
-    chessList[7][2] = new Chess("炮", 7, 2, "red");
-    chessList[1][7] = new Chess("炮", 1, 7, "black");
+    chessList[2][1] = new Chess("炮", 1, 2, "red");
+    chessList[2][7] = new Chess("炮", 7, 2, "red");
+    chessList[7][1] = new Chess("炮", 1, 7, "black");
     chessList[7][7] = new Chess("炮", 7, 7, "black");
 
-    chessList[4][0] = new Chess("帅", 4, 0, "red");
-    chessList[4][9] = new Chess("将", 4, 9, "black");
+    chessList[0][4] = new Chess("帅", 4, 0, "red");
+    chessList[9][4] = new Chess("将", 4, 9, "black");
 
 
     for (let i = 0; i < 9; i += 2) {
