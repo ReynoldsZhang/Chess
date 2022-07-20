@@ -31,13 +31,13 @@
         }
 
         /*棋盘中间字体的CSS*/
-        p{
+        p {
             position: absolute;
             transform: translateX(-50%);
             left: 50%;
             top: 230px;
             font-size: 40px;
-            font-family: WeiTi,serif;
+            font-family: WeiTi, serif;
             color: black;
         }
 
@@ -50,25 +50,35 @@
             text-align: center;
             background-color: #ebd588;
             position: absolute;
+            box-shadow: 1px 1px 1px 2px #6e5c3e;
         }
 
-        .piece:hover{
+        .piece:hover {
+            cursor: pointer;
+            box-shadow: 2px 2px 1px 2px #6e5c3e;
+        }
+
+        .piece:hover {
             animation: changeColor 1s;
         }
 
         /*棋子名字的CSS*/
         .piece-name {
             font-size: 40px;
-            font-family: WeiTi,serif;
+            font-family: WeiTi, serif;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
         }
 
+        .piece-opponent {
+            transform: rotate(180deg);
+        }
+
         @font-face {
             font-family: 'WeiTi';
-            src: url('Image/WeiTi.ttf') format('truetype');
+            src: url('font/WeiTi.ttf') format('truetype');
         }
 
         @keyframes show {
@@ -81,10 +91,10 @@
         }
 
         @keyframes changeColor {
-            from{
+            from {
                 background-color: #ebd588;
             }
-            to{
+            to {
                 background-color: peru;
             }
         }
@@ -102,190 +112,186 @@
 
     //所有棋子的class
     class Chess {
-        constructor(chessName, xSet, ySet, color, id) {
+        constructor(chessName, xSet, ySet, color) {
             this.chessName = chessName;
             this.xSet = xSet;
             this.ySet = ySet;
             this.color = color;
-            this.id = id;
             this.createPieces();
         }
 
         //获取棋子id
-        getChessID(){
+        getChessID() {
             return this.id;
         }
 
         //获取棋子颜色
-        getChessColor(){
+        getChessColor() {
             return this.color;
         }
 
-        setXY(x, y){
+        setXY(x, y) {
             this.xSet = x;
             this.ySet = y;
         }
 
-        getX(){
+        getX() {
             return this.xSet;
         }
 
-        getY(){
+        getY() {
             return this.ySet;
         }
 
         //画棋子
         createPieces() {
             let div = document.createElement("div");
-            div.id = this.id;
-            div.className = "piece";
+            if (this.color === "black") {
+                div.className = "piece";
+            } else {
+                div.className = "piece piece-opponent";
+            }
             div.style.color = this.color;
-            div.style.left = this.xSet * 50 + "px";
-            div.style.top = this.ySet * 50 + "px";
+            div.style.left = this.xSet * 50 + 5 + "px";
+            div.style.top = this.ySet * 50 + 5 + "px";
             div.innerHTML = "<div class='piece-name'>" + this.chessName + " </div>";
+
+            div.addEventListener('click', function (e) {
+
+                const x = Math.round(div.offsetLeft / 50);
+                const y = Math.round(div.offsetTop / 50);
+
+                console.log(x, y);
+
+                let chess = chessList[y][x];
+                console.log(chess);
+                if (!isExist(x, y)) {
+                    return false;
+                }
+                if (!rightChess(chess.color)) {
+                    return false;
+                }
+                div.style.color = "peru";
+                nextTurn();
+            })
+            this.htmlElement = div;
             boardWrapper.appendChild(div);
         }
     }
 </script>
 
 <script type="text/javascript">
-    const lineHigh = 10;  //棋盘高度
-    const lineWidth = 9; //棋盘宽度
-    const line = 50; //每条线之间的间隔
+    const rowsNumbers = 10;  //棋盘高度
+    const columnsNumber = 9; //棋盘宽度
+    const spacing = 50; //spacing: 间距
     const board = document.getElementById("board"); // 获取棋盘 canvas 元素
     let context = board.getContext('2d'); // 获取棋盘 canvas 上下文
     // Chess List: 0 refer to empty, 1 refer to black, 2 refer to white
-    const chessList = new Array(lineHigh);
+    const chessList = new Array(rowsNumbers);
     let turn = "red";
 
     //初始化数组
-    for (let i = 0; i < lineHigh + 1; i++) {
-        chessList[i] = new Array(lineWidth);
-        for (let j = 0; j < lineWidth; j++) {
-            if (i === 5) {
-                chessList[i][j] = -1;
-                continue;
-            }
+    for (let i = 0; i < columnsNumber; i++) {
+        chessList[i] = new Array(rowsNumbers);
+        for (let j = 0; j < rowsNumbers; j++) {
             chessList[i][j] = 0;
         }
     }
 
     //定制棋盘大小
-    board.height = lineHigh * line;
-    board.width = lineWidth * line;
+    board.height = rowsNumbers * spacing;
+    board.width = columnsNumber * spacing;
     context.strokeStyle = "#000";
     context.lineWidth = 1;
 
     //画竖线
-    for (let i = 0; i < lineHigh; i++) {
+    for (let i = 0; i < rowsNumbers; i++) {
         context.beginPath();
-        context.moveTo(line / 2 + i * line, line / 2);
-        context.lineTo(line / 2 + i * line, (line * lineHigh - line / 2) / 2 - 11.5);
+        context.moveTo(spacing / 2 + i * spacing, spacing / 2);
+        context.lineTo(spacing / 2 + i * spacing, (spacing * rowsNumbers - spacing / 2) / 2 - 11.5);
         context.stroke();
 
         context.beginPath();
-        context.moveTo(line / 2 + i * line, ((line * lineHigh - line / 2) / 2) + line - 11.5);
-        context.lineTo(line / 2 + i * line, line * lineHigh - line / 2);
+        context.moveTo(spacing / 2 + i * spacing, ((spacing * rowsNumbers - spacing / 2) / 2) + spacing - 11.5);
+        context.lineTo(spacing / 2 + i * spacing, spacing * rowsNumbers - spacing / 2);
         context.stroke();
 
         //将棋盘中间空出来不画线
         if (i === 3) {
             context.beginPath();
-            context.moveTo(line / 2 + i * line, line / 2);
-            context.lineTo(line / 2 + (i + 2) * line, line * 3 - line / 2);
+            context.moveTo(spacing / 2 + i * spacing, spacing / 2);
+            context.lineTo(spacing / 2 + (i + 2) * spacing, spacing * 3 - spacing / 2);
             context.stroke();
 
             context.beginPath();
-            context.moveTo(line / 2 + i * line, line * lineHigh - line / 2);
-            context.lineTo(line / 2 + (i + 2) * line, line * 8 - line / 2);
+            context.moveTo(spacing / 2 + i * spacing, spacing * rowsNumbers - spacing / 2);
+            context.lineTo(spacing / 2 + (i + 2) * spacing, spacing * 8 - spacing / 2);
             context.stroke();
         }
 
         if (i === 5) {
             context.beginPath();
-            context.moveTo(line / 2 + i * line, line / 2);
-            context.lineTo(line / 2 + (i - 2) * line, line * 3 - line / 2);
+            context.moveTo(spacing / 2 + i * spacing, spacing / 2);
+            context.lineTo(spacing / 2 + (i - 2) * spacing, spacing * 3 - spacing / 2);
             context.stroke();
 
             context.beginPath();
-            context.moveTo(line / 2 + i * line, line * lineHigh - line / 2);
-            context.lineTo(line / 2 + (i - 2) * line, line * 8 - line / 2);
+            context.moveTo(spacing / 2 + i * spacing, spacing * rowsNumbers - spacing / 2);
+            context.lineTo(spacing / 2 + (i - 2) * spacing, spacing * 8 - spacing / 2);
             context.stroke();
         }
     }
 
     //画横线
-    for (let i = 0; i < lineWidth + 1; i++) {
-        context.moveTo(line / 2, line / 2 + i * line);//Draw 15 horizontal lines 30px apart. The board is 14 x 14;
-        context.lineTo(line * lineWidth - line / 2, line / 2 + i * line);
+    for (let i = 0; i < columnsNumber + 1; i++) {
+        context.moveTo(spacing / 2, spacing / 2 + i * spacing);//Draw 15 horizontal lines 30px apart. The board is 14 x 14;
+        context.lineTo(spacing * columnsNumber - spacing / 2, spacing / 2 + i * spacing);
         context.stroke();
     }
 
-    //初始化所有棋子，并存储其最初坐标
-    chessList[0][0] = new Chess("车", 0, 0, "red", "car1");
-    chessList[0][8] = new Chess("车", 8, 0, "red", "car2");
-    chessList[10][0] = new Chess("车", 0, 9, "black", "car3");
-    chessList[10][8] = new Chess("车", 8, 9, "black", "car4");
+    chessList[0][0] = new Chess("车", 0, 0, "red");
+    chessList[8][0] = new Chess("车", 8, 0, "red");
+    chessList[0][9] = new Chess("车", 0, 9, "black");
+    chessList[8][9] = new Chess("车", 8, 9, "black");
 
-    chessList[0][1] = new Chess("马", 1, 0, "red", "hours1");
-    chessList[0][7] = new Chess("马", 7, 0, "red", "hours2");
-    chessList[10][1] = new Chess("马", 1, 9, "black", "hours3");
-    chessList[10][7] = new Chess("马", 7, 9, "black", "hours4");
+    chessList[1][0] = new Chess("马", 1, 0, "red");
+    chessList[7][0] = new Chess("马", 7, 0, "red");
+    chessList[1][9] = new Chess("马", 1, 9, "black");
+    chessList[7][9] = new Chess("马", 7, 9, "black");
 
-    chessList[0][2] = new Chess("相", 2, 0, "red", "ele1");
-    chessList[0][6] = new Chess("相", 6, 0, "red", "ele2");
-    chessList[10][2] = new Chess("象", 2, 9, "black", "ele3");
-    chessList[10][6] = new Chess("象", 6, 9, "black", "ele4");
+    chessList[2][0] = new Chess("象", 2, 0, "red");
+    chessList[6][0] = new Chess("象", 6, 0, "red");
+    chessList[2][9] = new Chess("象", 2, 9, "black");
+    chessList[6][9] = new Chess("象", 6, 9, "black");
 
-    chessList[0][3] = new Chess("士", 3, 0, "red", "sword1");
-    chessList[0][5] = new Chess("士", 5, 0, "red", "sword2");
-    chessList[10][3] = new Chess("士", 3, 9, "black", "sword3");
-    chessList[10][5] = new Chess("士", 5, 9, "black", "sword4");
+    chessList[3][0] = new Chess("士", 3, 0, "red");
+    chessList[5][0] = new Chess("士", 5, 0, "red");
+    chessList[3][9] = new Chess("士", 3, 9, "black");
+    chessList[5][9] = new Chess("士", 5, 9, "black");
 
-    chessList[2][1] = new Chess("炮", 1, 2, "red", "canon1");
-    chessList[2][7] = new Chess("炮", 7, 2, "red", "canon2");
-    chessList[8][1] = new Chess("炮", 1, 7, "black", "canon3");
-    chessList[8][7] = new Chess("炮", 7, 7, "black", "canon4");
+    chessList[1][2] = new Chess("炮", 1, 2, "red");
+    chessList[7][2] = new Chess("炮", 7, 2, "red");
+    chessList[1][7] = new Chess("炮", 1, 7, "black");
+    chessList[7][7] = new Chess("炮", 7, 7, "black");
 
-    chessList[0][4] = new Chess("帅", 4, 0, "red", "cap1");
-    chessList[10][4] = new Chess("将", 4, 9, "black", "cap2");
+    chessList[4][0] = new Chess("帅", 4, 0, "red");
+    chessList[4][9] = new Chess("将", 4, 9, "black");
 
-    for (let i = 0; i < 9; i+=2) {
-        chessList[3][i] = new Chess("兵", i, 3, "red" , "soldier"+i);
-        chessList[7][i] = new Chess("卒", i, 6, "black", "soldier"+i+1);
+
+    for (let i = 0; i < 9; i += 2) {
+        chessList[3][i] = new Chess("兵", i, 3, "red");
+        chessList[7][i] = new Chess("卒", i, 6, "black");
     }
 
-    const div = document.getElementsByClassName("piece");
-    for(let i=0; i < div.length; i++){
-        div[i].addEventListener('click', function(e) {
-            const x = div[i].offsetLeft/ 50;
-            const y = div[i].offsetTop / 50;
-
-            console.log(x, y);
-            console.log(div[i]);
-
-            let type = chessList[y][x];
-            console.log(type);
-            if (!isExist(x, y)) {
-                return false;
-            }
-            if (!rightChess(type.color)) {
-                return false;
-            }
-            document.getElementById(type.id).style.color = "peru";
-            nextTurn();
-        })
-    }
-
-    function isExist(x, y){
+    function isExist(x, y) {
         return (chessList[y][x] !== 0 || -1);
     }
 
-    function nextTurn(){
+    function nextTurn() {
         turn = turn === "red" ? "black" : "red";
     }
 
-    function rightChess(color){
+    function rightChess(color) {
         return color === turn;
     }
 
