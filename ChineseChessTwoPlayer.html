@@ -126,6 +126,14 @@
             this.ySet = y;
         }
 
+        getX(){
+            return this.xSet;
+        }
+
+        getY(){
+            return this.ySet;
+        }
+
         //画棋子
         createPieces() {
             let div = document.createElement("div");
@@ -250,18 +258,22 @@
     const div = document.getElementsByClassName("piece");
     for(let i=0; i < div.length; i++){
         div[i].addEventListener('click', function(e) {
-            const x = Math.round((e.offsetX - line / 2) / line);
-            const y = Math.round((e.offsetY - line / 2) / line);
+            const x = div[i].offsetLeft/ 50;
+            const y = div[i].offsetTop / 50;
 
-            console.log(x + y);
+            console.log(x, y);
+            console.log(div[i]);
+
             let type = chessList[y][x];
+            console.log(type);
             if (!isExist(x, y)) {
                 return false;
             }
-            if (!rightChess(type.getChessColor())) {
+            if (!rightChess(type.color)) {
                 return false;
             }
-            document.getElementById(type.getChessID()).style.color = "peru";
+            document.getElementById(type.id).style.color = "peru";
+            nextTurn();
         })
     }
 
@@ -269,9 +281,8 @@
         return (chessList[y][x] !== 0 || -1);
     }
 
-    function nextTurn(turn){
+    function nextTurn(){
         turn = turn === "red" ? "black" : "red";
-        return turn;
     }
 
     function rightChess(color){
