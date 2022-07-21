@@ -174,9 +174,13 @@
                 if (!rightChess(div.style.color)) {
                     return false;
                 }
+                if(htmlElement !== null){
+                    htmlElement.style.backgroundColor = "#ebd588";
+                }
                 div.style.backgroundColor = "peru";
+                htmlElement = div;
+                clearPoint(5,5)
             })
-            this.htmlElement = div;
             boardWrapper.appendChild(div);
         }
     }
@@ -191,6 +195,7 @@
     // Chess List: 0 refer to empty, 1 refer to black, 2 refer to white
     let chessList = new Array(rowsNumbers);
     let turn = "red";
+    let htmlElement = null;
 
     //初始化数组
     for (let i = 0; i < rowsNumbers; i++) {
@@ -251,44 +256,47 @@
         context.stroke();
     }
 
-    chessList[0][0] = new Chess("车", 0, 0, "red");
-    chessList[0][8] = new Chess("车", 8, 0, "red");
-    chessList[9][0] = new Chess("车", 0, 9, "black");
-    chessList[9][8] = new Chess("车", 8, 9, "black");
+    //初始化所有棋子
+    chessList[9][8] = new Chess("车", 8, 9, "red");
+    chessList[9][0] = new Chess("车", 0, 9, "red");
+    chessList[0][8] = new Chess("车", 8, 0, "black");
+    chessList[0][0] = new Chess("车", 0, 0, "black");
 
-    chessList[0][1] = new Chess("马", 1, 0, "red");
-    chessList[0][7] = new Chess("马", 7, 0, "red");
-    chessList[9][1] = new Chess("马", 1, 9, "black");
-    chessList[9][7] = new Chess("马", 7, 9, "black");
+    chessList[9][7] = new Chess("马", 7, 9, "red");
+    chessList[9][1] = new Chess("马", 1, 9, "red");
+    chessList[0][7] = new Chess("马", 7, 0, "black");
+    chessList[0][1] = new Chess("马", 1, 0, "black");
 
-    chessList[0][2] = new Chess("象", 2, 0, "red");
-    chessList[0][6] = new Chess("象", 6, 0, "red");
-    chessList[9][2] = new Chess("象", 2, 9, "black");
-    chessList[9][6] = new Chess("象", 6, 9, "black");
+    chessList[9][6] = new Chess("象", 6, 9, "red");
+    chessList[9][2] = new Chess("象", 2, 9, "red");
+    chessList[0][6] = new Chess("象", 6, 0, "black");
+    chessList[0][2] = new Chess("象", 2, 0, "black");
 
-    chessList[0][3] = new Chess("士", 3, 0, "red");
-    chessList[0][5] = new Chess("士", 5, 0, "red");
-    chessList[9][3] = new Chess("士", 3, 9, "black");
-    chessList[9][5] = new Chess("士", 5, 9, "black");
+    chessList[9][5] = new Chess("士", 5, 9, "red");
+    chessList[9][3] = new Chess("士", 3, 9, "red");
+    chessList[0][5] = new Chess("士", 5, 0, "black");
+    chessList[0][3] = new Chess("士", 3, 0, "black");
 
-    chessList[2][1] = new Chess("炮", 1, 2, "red");
-    chessList[2][7] = new Chess("炮", 7, 2, "red");
-    chessList[7][1] = new Chess("炮", 1, 7, "black");
-    chessList[7][7] = new Chess("炮", 7, 7, "black");
+    chessList[7][7] = new Chess("炮", 7, 7, "red");
+    chessList[7][1] = new Chess("炮", 1, 7, "red");
+    chessList[2][7] = new Chess("炮", 7, 2, "black");
+    chessList[2][1] = new Chess("炮", 1, 2, "black");
 
-    chessList[0][4] = new Chess("帅", 4, 0, "red");
-    chessList[9][4] = new Chess("将", 4, 9, "black");
+    chessList[9][4] = new Chess("帅", 4, 9, "red");
+    chessList[0][4] = new Chess("将", 4, 0, "black");
 
 
     for (let i = 0; i < 9; i += 2) {
-        chessList[3][i] = new Chess("兵", i, 3, "red");
-        chessList[7][i] = new Chess("卒", i, 6, "black");
+        chessList[6][i] = new Chess("兵", i, 6, "red");
+        chessList[3][i] = new Chess("卒", i, 3, "black");
     }
 
+    //判断棋盘上面的这个点是否有棋子
     function isExist(x, y) {
         return (chessList[y][x] !== 0 || -1);
     }
 
+    //下一个回合，棋盘和数组进行翻转
     function nextTurn() {
         turn = turn === "red" ? "black" : "red";
         if(turn === "black") {
@@ -300,10 +308,12 @@
         }
     }
 
+    //判断所点击的棋子是否是我方棋子
     function rightChess(color) {
         return color === turn;
     }
 
+    //画出棋子可以下的地方
     function drawPoint(x, y){
         if (x > columnsNumber || y > rowsNumbers || x < 0 || y < 0) {
             return;
@@ -312,8 +322,39 @@
         context.arc(spacing / 2 + x * spacing, spacing / 2 + y * spacing, 10, 0, 2 * Math.PI);
         context.fill();
         context.closePath();
+        chessList[y][x] = 1;
     }
 
+    drawPoint(5,5);
+
+    function clearPoint(x, y) {
+        context.clearRect(x * spacing, y * spacing, spacing, spacing);
+        context.beginPath();
+        if (x === 0) {
+            context.moveTo(spacing / 2, y * spacing + spacing / 2);
+        } else {
+            context.moveTo(x * spacing, y * spacing + spacing / 2);
+        }
+        if (x === columnsNumber - 1) {
+            context.lineTo(x * spacing + spacing / 2, y * spacing + spacing / 2);
+        } else {
+            context.lineTo(x * spacing + spacing, y * spacing + spacing / 2);
+        }
+        if (y === 0) {
+            context.moveTo(x * spacing + spacing / 2, spacing / 2);
+        } else {
+            context.moveTo(x * spacing + spacing / 2, y * spacing);
+        }
+        if (y === rowsNumbers - 1) {
+            context.lineTo(x * spacing + spacing / 2, y * spacing + spacing / 2);
+        } else {
+            context.lineTo(x * spacing + spacing / 2, y * spacing + spacing);
+        }
+        context.stroke();
+        context.closePath();
+    }
+
+    //判断棋子是否已被选中
     function rightBackgroundColor(chess){
         return chess.backgroundColor !== " #ebd588";
     }
