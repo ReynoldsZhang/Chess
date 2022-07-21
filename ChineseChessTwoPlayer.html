@@ -48,7 +48,6 @@
             border: solid 1px black;
             border-radius: 50px;
             text-align: center;
-            background-color: #ebd588;
             position: absolute;
             box-shadow: 1px 1px 1px 2px #6e5c3e;
         }
@@ -56,9 +55,6 @@
         .piece:hover {
             cursor: pointer;
             box-shadow: 2px 2px 1px 2px #6e5c3e;
-        }
-
-        .piece:hover {
             animation: changeColor 1s;
         }
 
@@ -79,6 +75,28 @@
         @font-face {
             font-family: 'WeiTi';
             src: url('font/WeiTi.ttf') format('truetype');
+        }
+        
+        @keyframes rotateToBlack {
+            from{
+                transform: translateX(-50%);
+                left: 50%;
+            }
+            to{
+                transform: rotate(180deg);
+                left: 35%;
+            }
+        }
+
+        @keyframes rotateToRed {
+            from{
+                transform: rotate(180deg);
+                left: 35%;
+            }
+            to{
+                transform: translateX(-50%);
+                left: 50%;
+            }
         }
 
         @keyframes show {
@@ -120,11 +138,6 @@
             this.createPieces();
         }
 
-        //获取棋子id
-        getChessID() {
-            return this.id;
-        }
-
         //获取棋子颜色
         getChessColor() {
             return this.color;
@@ -135,46 +148,38 @@
             this.ySet = y;
         }
 
-        getX() {
-            return this.xSet;
-        }
-
-        getY() {
-            return this.ySet;
-        }
-
         //画棋子
         createPieces() {
             let div = document.createElement("div");
-            if (this.color === "black") {
+            if (this.color === "red") {
                 div.className = "piece";
             } else {
                 div.className = "piece piece-opponent";
             }
             div.style.color = this.color;
+            div.style.backgroundColor = "#ebd588";
             div.style.left = this.xSet * 50 + 5 + "px";
             div.style.top = this.ySet * 50 + 5 + "px";
             div.innerHTML = "<div class='piece-name'>" + this.chessName + " </div>";
 
-            div.addEventListener('click', function (e) {
+            div.addEventListener('click', function () {
 
                 const x = Math.round(div.offsetLeft / 50);
                 const y = Math.round(div.offsetTop / 50);
 
-                console.log(x, y);
-
                 let chess = chessList[y][x];
-                console.log(chess);
                 if (!isExist(x, y)) {
                     return false;
                 }
-                if (!rightChess(chess.color)) {
+                if(htmlElement){
                     return false;
                 }
-                div.style.color = "peru";
-                nextTurn();
+                if (!rightChess(div.style.color)) {
+                    return false;
+                }
+                div.style.backgroundColor = "peru";
             })
-            this.htmlElement = div;
+            htmlElement = true;
             boardWrapper.appendChild(div);
         }
     }
@@ -187,8 +192,9 @@
     const board = document.getElementById("board"); // 获取棋盘 canvas 元素
     let context = board.getContext('2d'); // 获取棋盘 canvas 上下文
     // Chess List: 0 refer to empty, 1 refer to black, 2 refer to white
-    const chessList = new Array(rowsNumbers);
+    let chessList = new Array(rowsNumbers);
     let turn = "red";
+    let htmlElement = false;
 
     //初始化数组
     for (let i = 0; i < columnsNumber; i++) {
@@ -249,38 +255,38 @@
         context.stroke();
     }
 
-    chessList[0][0] = new Chess("车", 0, 0, "red");
-    chessList[8][0] = new Chess("车", 8, 0, "red");
-    chessList[0][9] = new Chess("车", 0, 9, "black");
-    chessList[8][9] = new Chess("车", 8, 9, "black");
+    chessList[8][9] = new Chess("车", 8, 9, "red");
+    chessList[0][9] = new Chess("车", 0, 9, "red");
+    chessList[8][0] = new Chess("车", 8, 0, "black");
+    chessList[0][0] = new Chess("车", 0, 0, "black");
 
-    chessList[1][0] = new Chess("马", 1, 0, "red");
-    chessList[7][0] = new Chess("马", 7, 0, "red");
-    chessList[1][9] = new Chess("马", 1, 9, "black");
-    chessList[7][9] = new Chess("马", 7, 9, "black");
+    chessList[7][9] = new Chess("马", 7, 9, "red");
+    chessList[1][9] = new Chess("马", 1, 9, "red");
+    chessList[7][0] = new Chess("马", 7, 0, "black");
+    chessList[1][0] = new Chess("马", 1, 0, "black");
 
-    chessList[2][0] = new Chess("象", 2, 0, "red");
-    chessList[6][0] = new Chess("象", 6, 0, "red");
-    chessList[2][9] = new Chess("象", 2, 9, "black");
-    chessList[6][9] = new Chess("象", 6, 9, "black");
+    chessList[6][9] = new Chess("象", 6, 9, "red");
+    chessList[2][9] = new Chess("象", 2, 9, "red");
+    chessList[6][0] = new Chess("象", 6, 0, "black");
+    chessList[2][0] = new Chess("象", 2, 0, "black");
 
-    chessList[3][0] = new Chess("士", 3, 0, "red");
-    chessList[5][0] = new Chess("士", 5, 0, "red");
-    chessList[3][9] = new Chess("士", 3, 9, "black");
-    chessList[5][9] = new Chess("士", 5, 9, "black");
+    chessList[5][9] = new Chess("士", 5, 9, "red");
+    chessList[3][9] = new Chess("士", 3, 9, "red");
+    chessList[5][0] = new Chess("士", 5, 0, "black");
+    chessList[3][0] = new Chess("士", 3, 0, "black");
 
-    chessList[1][2] = new Chess("炮", 1, 2, "red");
-    chessList[7][2] = new Chess("炮", 7, 2, "red");
-    chessList[1][7] = new Chess("炮", 1, 7, "black");
-    chessList[7][7] = new Chess("炮", 7, 7, "black");
+    chessList[7][7] = new Chess("炮", 7, 7, "red");
+    chessList[1][7] = new Chess("炮", 1, 7, "red");
+    chessList[7][2] = new Chess("炮", 7, 2, "black");
+    chessList[1][2] = new Chess("炮", 1, 2, "black");
 
-    chessList[4][0] = new Chess("帅", 4, 0, "red");
-    chessList[4][9] = new Chess("将", 4, 9, "black");
+    chessList[4][9] = new Chess("帅", 4, 9, "red");
+    chessList[4][0] = new Chess("将", 4, 0, "black");
 
 
     for (let i = 0; i < 9; i += 2) {
-        chessList[3][i] = new Chess("兵", i, 3, "red");
-        chessList[7][i] = new Chess("卒", i, 6, "black");
+        chessList[i][6] = new Chess("兵", i, 6, "red");
+        chessList[i][3] = new Chess("卒", i, 3, "black");
     }
 
     function isExist(x, y) {
@@ -289,10 +295,31 @@
 
     function nextTurn() {
         turn = turn === "red" ? "black" : "red";
+        if(turn === "black") {
+            document.getElementById("board-wrapper").style.animation = "rotateToBlack 2s ease-in-out forwards";
+            chessList = chessList.reverse();
+        }else{
+            document.getElementById("board-wrapper").style.animation = "rotateToRed 2s ease-in-out forwards";
+            chessList = chessList.reverse();
+        }
     }
 
     function rightChess(color) {
         return color === turn;
+    }
+
+    function drawPoint(x, y){
+        if (x > columnsNumber || y > rowsNumbers || x < 0 || y < 0) {
+            return;
+        }
+        context.beginPath();
+        context.arc(spacing / 2 + x * spacing, spacing / 2 + y * spacing, 10, 0, 2 * Math.PI);
+        context.fill();
+        context.closePath();
+    }
+
+    function rightBackgroundColor(chess){
+        return chess.backgroundColor !== " #ebd588";
     }
 
 </script>
