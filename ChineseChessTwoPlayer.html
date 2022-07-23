@@ -136,16 +136,34 @@
             this.ySet = ySet;
             this.color = color;
             this.createPieces();
+
         }
 
-        //获取棋子颜色
-        getChessColor() {
-            return this.color;
+        //判断棋子的预期落子位置是否超出棋盘
+
+        getX(){
+            return this.xSet;
+        }
+        getY(){
+            return this.ySet;
+        }
+        getColor(){
+            return this.color
         }
 
-        setXY(x, y) {
-            this.xSet = x;
-            this.ySet = y;
+        //判断落子位子是否有地方棋子
+        checkEnemy(x, y){
+            let type = chessList[y][x];
+
+            if(type === 0){
+                drawPoint(x, y)
+                return false;
+            }
+            if(rightChess(type.getColor())){
+                return true;
+            }
+            type.divElement.style.backgroundColor = "#a52a2a"
+            return  true;
         }
 
         //画棋子
@@ -172,6 +190,10 @@
                     return false;
                 }
                 if (!rightChess(div.style.color)) {
+                    if(htmlElement !== null){
+                        //用于表示棋子吃掉对方的操作
+                        div.style.backgroundColor = "#a52a2a";
+                    }
                     return false;
                 }
                 if(htmlElement !== null){
@@ -179,10 +201,12 @@
                 }
                 div.style.backgroundColor = "peru";
                 htmlElement = div;
-                clearPoint(5,5)
+                keeper(chess);
             })
+            this.divElement = div;
             boardWrapper.appendChild(div);
         }
+
     }
 </script>
 
@@ -196,8 +220,9 @@
     let chessList = new Array(rowsNumbers);
     let turn = "red";
     let htmlElement = null;
+    let enemyList = new Array(4);
 
-    //初始化数组
+    //初始化棋盘数组
     for (let i = 0; i < rowsNumbers; i++) {
         chessList[i] = new Array(columnsNumber);
         for (let j = 0; j < columnsNumber; j++) {
@@ -325,8 +350,6 @@
         chessList[y][x] = 1;
     }
 
-    drawPoint(5,5);
-
     function clearPoint(x, y) {
         context.clearRect(x * spacing, y * spacing, spacing, spacing);
         context.beginPath();
@@ -354,9 +377,71 @@
         context.closePath();
     }
 
-    //判断棋子是否已被选中
-    function rightBackgroundColor(chess){
-        return chess.backgroundColor !== " #ebd588";
+    //小兵的走路方式
+    function soldier(chess){
+        let x = chess.getX();
+        let y = chess.getY();
+
+        if(y < 5){
+            chess.checkEnemy(x + 1, y);
+            chess.checkEnemy(x - 1, y);
+        }
+        chess.checkEnemy(x, y - 1);
+    }
+
+    //车的走路方式
+    function car(chess){
+        let x = chess.getX();
+        let y = chess.getY();
+
+        for (let i = y-1; i > -1; i--) {
+            if(chess.checkEnemy(x, i)){
+                break;
+            }
+        }
+        for (let i = y+1; i < rowsNumbers; i++) {
+            console.log(x,i);
+            if(chess.checkEnemy(x, i)){
+                break;
+            }
+        }
+        for (let i = x-1; i > -1; i--) {
+            if(chess.checkEnemy(i, y)){
+                break;
+            }
+        }
+        for (let i = x+1; i < columnsNumber; i++) {
+            if(chess.checkEnemy(i, y)){
+                break;
+            }
+        }
+    }
+
+    //将的走路方式
+    function leader(chess){
+        let x = chess.getX();
+        let y = chess.getY();
+
+        for (let i = y - 1; i < y + 2; i++) {
+            for (let j = x - 1; j < x + 2; j++) {
+                chess.checkEnemy(j, i);
+            }
+        }
+    }
+
+    //士的走路方式
+    function keeper(chess){
+        let x = chess.getX();
+        let y = chess.getY();
+
+        if(x - 1 >= 4 && x - 1 <= 6 && y - 1 > 7) {
+            chess.checkEnemy(x - 1, y - 1);
+            chess.checkEnemy(x - 1, y + 1);
+        }
+        if(x + 1 <= 6 && x + 1 >= 4 && y - 1 > 6){
+            chess.checkEnemy(x + 1, y - 1);
+            chess.checkEnemy(x + 1, y + 1);
+        }
     }
 
 </script>
