@@ -30,14 +30,6 @@
             background-color: #ebd58b;
         }
 
-        #board-preview-points {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
         /*棋盘中间字体的CSS*/
         p {
             position: absolute;
@@ -130,8 +122,6 @@
 <div id="board-wrapper">
     <canvas id="board"></canvas>
     <p>楚&nbsp;&nbsp;河&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;汉&nbsp;&nbsp;界</p>
-
-    <canvas id="board-preview-points"></canvas>
 </div>
 
 
@@ -163,6 +153,9 @@
 
         //判断落子位子是否有地方棋子
         checkEnemy(x, y){
+            if((x < 0 || y < 0) || (x > columnsNumber) || (y > rowsNumbers)){
+                return true;
+            }
             let type = chessList[y][x];
 
             if(type === 0){
@@ -211,7 +204,7 @@
                 }
                 div.style.backgroundColor = "peru";
                 htmlElement = div;
-                keeper(chess);
+                clearPoint(5,5);
             })
             this.divElement = div;
             boardWrapper.appendChild(div);
@@ -230,7 +223,6 @@
     let chessList = new Array(rowsNumbers);
     let turn = "red";
     let htmlElement = null;
-    let enemyList = new Array(4);
 
     //初始化棋盘数组
     for (let i = 0; i < rowsNumbers; i++) {
@@ -348,29 +340,21 @@
         return color === turn;
     }
 
-    // 初始化预览棋盘
-    const previewPoints = document.getElementById('board-preview-points');
-    let previewCtx = previewPoints.getContext('2d');
-
-    previewPoints.height = rowsNumbers * spacing;
-    previewPoints.width = columnsNumber * spacing;
-    previewCtx.strokeStyle = "#000";
-    previewCtx.lineWidth = 1;
-
     //画出棋子可以下的地方
     function drawPoint(x, y){
         if (x > columnsNumber || y > rowsNumbers || x < 0 || y < 0) {
             return;
         }
-        previewCtx.beginPath();
-        previewCtx.arc(spacing / 2 + x * spacing, spacing / 2 + y * spacing, 10, 0, 2 * Math.PI);
-        previewCtx.fill();
-        previewCtx.closePath();
+        context.beginPath();
+        context.arc(spacing / 2 + x * spacing, spacing / 2 + y * spacing, 10, 0, 2 * Math.PI);
+        context.fill();
+        context.closePath();
         chessList[y][x] = 1;
     }
 
+    drawPoint(5,5);
     function clearPoint(x, y) {
-        previewCtx.clearRect(x * spacing, y * spacing, spacing, spacing);
+            context.clearRect(x * spacing, y * spacing, spacing, spacing);
     }
 
     //小兵的走路方式
@@ -430,16 +414,110 @@
         let x = chess.getX();
         let y = chess.getY();
 
-        if(x - 1 >= 4 && x - 1 <= 6 && y - 1 > 7) {
+        if(x - 1 >= 3 && y - 1 > 7) {
             chess.checkEnemy(x - 1, y - 1);
             chess.checkEnemy(x - 1, y + 1);
         }
-        if(x + 1 <= 6 && x + 1 >= 4 && y - 1 > 6){
+        if(x + 1 < 6 && x + 1 >= 3 && y - 1 > 7){
             chess.checkEnemy(x + 1, y - 1);
             chess.checkEnemy(x + 1, y + 1);
         }
     }
 
+    //炮的走路方式
+    function canon(chess){
+        let x = chess.getX();
+        let y = chess.getY();
+        let count = 1;
+        let type = null;
+
+        for (let i = y-1; i > -1; i--) {
+            if(chess.checkEnemy(x, i)){
+                if(count >= 2){
+                    break;
+                }
+                type = chessList[i][x];
+                chessList[i][x].divElement.style.backgroundColor = "#ebd588";
+                count++;
+            }
+            if(type !== null){
+                clearPoint(x, i);
+            }
+        }
+
+        type = null;
+        count = 1;
+        for (let i = y+1; i < rowsNumbers; i++) {
+            if(chess.checkEnemy(x, i)){
+                if(count >= 2){
+                    break;
+                }
+                type = chessList[i][x];
+                chessList[i][x].divElement.style.backgroundColor = "#ebd588";
+                count++;
+            }
+            if(type !== null){
+                clearPoint(x, i);
+            }
+        }
+
+        type = null;
+        count = 1;
+        for (let i = x-1; i > -1; i--) {
+            if(chess.checkEnemy(i, y)){
+                if(count >= 2){
+                    break;
+                }
+                type = chessList[y][i];
+                chessList[y][i].divElement.style.backgroundColor = "#ebd588";
+                count++;
+            }
+            if(type !== null){
+                clearPoint(i, y);
+            }
+        }
+
+        type = null;
+        count = 1;
+        for (let i = x+1; i < columnsNumber; i++) {
+            if(chess.checkEnemy(i, y)){
+                if(count >= 2){
+                    break;
+                }
+                type = chessList[y][i];
+                chessList[y][i].divElement.style.backgroundColor = "#ebd588";
+                count++;
+            }
+            if(type !== null){
+                clearPoint(i, y);
+            }
+        }
+    }
+
+    //象的走路方式
+    function elephant(chess){
+        let x = chess.getX();
+        let y = chess.getY();
+
+        if(y-2 > 5){
+            chess.checkEnemy(x-2, y-2);
+            chess.checkEnemy(x+2, y-2);
+        }
+        chess.checkEnemy(x-2, y+2);
+        chess.checkEnemy(x+2, y+2);
+    }
+
+    //马的走路方式
+    function horse(chess){
+        let x = chess.getX();
+        let y = chess.getY();
+
+        for (let i = x-1; i <= x; i++) {
+            for (let j = y+1; j <= y+2; j++) {
+
+            }
+        }
+    }
 </script>
 
 </body>
