@@ -30,6 +30,14 @@
             background-color: #ebd58b;
         }
 
+        #board-preview-points {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
         /*棋盘中间字体的CSS*/
         p {
             position: absolute;
@@ -122,6 +130,8 @@
 <div id="board-wrapper">
     <canvas id="board"></canvas>
     <p>楚&nbsp;&nbsp;河&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;汉&nbsp;&nbsp;界</p>
+
+    <canvas id="board-preview-points"></canvas>
 </div>
 
 
@@ -338,43 +348,29 @@
         return color === turn;
     }
 
+    // 初始化预览棋盘
+    const previewPoints = document.getElementById('board-preview-points');
+    let previewCtx = previewPoints.getContext('2d');
+
+    previewPoints.height = rowsNumbers * spacing;
+    previewPoints.width = columnsNumber * spacing;
+    previewCtx.strokeStyle = "#000";
+    previewCtx.lineWidth = 1;
+
     //画出棋子可以下的地方
     function drawPoint(x, y){
         if (x > columnsNumber || y > rowsNumbers || x < 0 || y < 0) {
             return;
         }
-        context.beginPath();
-        context.arc(spacing / 2 + x * spacing, spacing / 2 + y * spacing, 10, 0, 2 * Math.PI);
-        context.fill();
-        context.closePath();
+        previewCtx.beginPath();
+        previewCtx.arc(spacing / 2 + x * spacing, spacing / 2 + y * spacing, 10, 0, 2 * Math.PI);
+        previewCtx.fill();
+        previewCtx.closePath();
         chessList[y][x] = 1;
     }
 
     function clearPoint(x, y) {
-        context.clearRect(x * spacing, y * spacing, spacing, spacing);
-        context.beginPath();
-        if (x === 0) {
-            context.moveTo(spacing / 2, y * spacing + spacing / 2);
-        } else {
-            context.moveTo(x * spacing, y * spacing + spacing / 2);
-        }
-        if (x === columnsNumber - 1) {
-            context.lineTo(x * spacing + spacing / 2, y * spacing + spacing / 2);
-        } else {
-            context.lineTo(x * spacing + spacing, y * spacing + spacing / 2);
-        }
-        if (y === 0) {
-            context.moveTo(x * spacing + spacing / 2, spacing / 2);
-        } else {
-            context.moveTo(x * spacing + spacing / 2, y * spacing);
-        }
-        if (y === rowsNumbers - 1) {
-            context.lineTo(x * spacing + spacing / 2, y * spacing + spacing / 2);
-        } else {
-            context.lineTo(x * spacing + spacing / 2, y * spacing + spacing);
-        }
-        context.stroke();
-        context.closePath();
+        previewCtx.clearRect(x * spacing, y * spacing, spacing, spacing);
     }
 
     //小兵的走路方式
