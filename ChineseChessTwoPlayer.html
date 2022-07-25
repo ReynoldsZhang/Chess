@@ -30,6 +30,14 @@
             background-color: #ebd58b;
         }
 
+        #board-preview-points {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
         /*棋盘中间字体的CSS*/
         p {
             position: absolute;
@@ -122,6 +130,7 @@
 <div id="board-wrapper">
     <canvas id="board"></canvas>
     <p>楚&nbsp;&nbsp;河&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;汉&nbsp;&nbsp;界</p>
+    <canvas id="board-preview-points"></canvas>
 </div>
 
 
@@ -149,6 +158,9 @@
         }
         getColor(){
             return this.color
+        }
+        getChessName(){
+            return this.chessName;
         }
 
         //判断落子位子是否有地方棋子
@@ -204,7 +216,7 @@
                 }
                 div.style.backgroundColor = "peru";
                 htmlElement = div;
-                clearPoint(5,5);
+                checkChessType(chess);
             })
             this.divElement = div;
             boardWrapper.appendChild(div);
@@ -221,8 +233,8 @@
     let context = board.getContext('2d'); // 获取棋盘 canvas 上下文
     // Chess List: 0 refer to empty, 1 refer to black, 2 refer to white
     let chessList = new Array(rowsNumbers);
-    let turn = "red";
-    let htmlElement = null;
+    let turn = "red"; //确认当前回合
+    let htmlElement = null; // 用于存储当前选中棋子的style
 
     //初始化棋盘数组
     for (let i = 0; i < rowsNumbers; i++) {
@@ -320,7 +332,7 @@
 
     //判断棋盘上面的这个点是否有棋子
     function isExist(x, y) {
-        return (chessList[y][x] !== 0 || -1);
+        return chessList[y][x] !== 0;
     }
 
     //下一个回合，棋盘和数组进行翻转
@@ -340,21 +352,57 @@
         return color === turn;
     }
 
+    // 初始化预览棋盘
+    const previewPoints = document.getElementById('board-preview-points');
+    let previewCtx = previewPoints.getContext('2d');
+
+    previewPoints.height = rowsNumbers * spacing;
+    previewPoints.width = columnsNumber * spacing;
+    previewCtx.strokeStyle = "#000";
+    previewCtx.lineWidth = 1;
+
     //画出棋子可以下的地方
     function drawPoint(x, y){
         if (x > columnsNumber || y > rowsNumbers || x < 0 || y < 0) {
             return;
         }
-        context.beginPath();
-        context.arc(spacing / 2 + x * spacing, spacing / 2 + y * spacing, 10, 0, 2 * Math.PI);
-        context.fill();
-        context.closePath();
+        previewCtx.beginPath();
+        previewCtx.arc(spacing / 2 + x * spacing, spacing / 2 + y * spacing, 10, 0, 2 * Math.PI);
+        previewCtx.fill();
+        previewCtx.closePath();
         chessList[y][x] = 1;
     }
 
-    drawPoint(5,5);
     function clearPoint(x, y) {
-            context.clearRect(x * spacing, y * spacing, spacing, spacing);
+        previewCtx.clearRect(x * spacing, y * spacing, spacing, spacing);
+    }
+
+    //判断选中棋子属于什么类型的
+    function checkChessType(chess){
+        let name = chess.getChessName();
+
+        if(name === "兵" || name === "卒"){
+            return soldier(chess);
+        }
+        if(name === "将" || name === "帅"){
+            return leader(chess);
+        }
+        if(name === "炮"){
+            return canon(chess);
+        }
+        if(name === "士"){
+            return keeper(chess);
+        }
+        if(name === "象"){
+            return elephant(chess);
+        }
+        if(name === "马"){
+            return horse(chess);
+        }
+        if(name === "车"){
+            return car(chess);
+        }
+        return false;
     }
 
     //小兵的走路方式
@@ -511,10 +559,122 @@
     function horse(chess){
         let x = chess.getX();
         let y = chess.getY();
+        let judgeChess  = false; //用于判断是否有出现压马腿现象
 
-        for (let i = x-1; i <= x; i++) {
+
+        //正上方两个日字
+        for (let i = x; i >= x-1; i--) {
+            if(judgeChess){
+                break;
+            }
+            for (let j = y-1; j >= y-2; j--) {
+                if(isExist(i, j)){
+                    judgeChess = true;
+                    break;
+                }else if(i === x-1 && j === y-2){
+                    chess.checkEnemy(i, j);
+                }
+            }
+        }
+        judgeChess = false;
+        for (let i = x; i <= x+1; i++) {
+            if(judgeChess){
+                break;
+            }
+            for (let j = y-1; j >= y-2; j--) {
+                if(isExist(i, j)){
+                    judgeChess = true;
+                    break;
+                }else if(i === x+1 && j === y-2){
+                    chess.checkEnemy(i, j);
+                }
+            }
+        }
+        judgeChess = false;
+        //右边两个日字
+        for (let i = y; i <= y+1; i++) {
+            if(judgeChess){
+                break;
+            }
+            for (let j = x+1; j <= x+2; j++) {
+                if(isExist(j, i)){
+                    judgeChess = true;
+                    break;
+                }else if(j === x+2 && i === y+1){
+                    chess.checkEnemy(j, i);
+                }
+            }
+        }
+        judgeChess = false;
+        for (let i = y; i >= y-1; i--) {
+            if(judgeChess){
+                break;
+            }
+            for (let j = x+1; j <= x+2; j++) {
+                if(isExist(j, i)){
+                    judgeChess = true;
+                    break;
+                }else if(j === x+2 && i === y-1){
+                    chess.checkEnemy(j, i);
+                }
+            }
+        }
+        judgeChess = false;
+        //正下方两个日字
+        for (let i = x; i <= x+1; i++) {
+            if(judgeChess){
+                break;
+            }
             for (let j = y+1; j <= y+2; j++) {
-
+                if(isExist(i, j)){
+                    judgeChess = true;
+                    break;
+                }else if(i === x+1 && j === y+2){
+                    chess.checkEnemy(i, j);
+                }
+            }
+        }
+        judgeChess = false;
+        for (let i = x; i >= x-1; i--) {
+            if(judgeChess){
+                break;
+            }
+            for (let j = y+1; j <= y+2; j++) {
+                if(isExist(i, j)){
+                    judgeChess = true;
+                    break;
+                }else if(i === x-1 && j === y+2){
+                    chess.checkEnemy(i, j);
+                }
+            }
+        }
+        judgeChess = false;
+        //左边的两个日字
+        for (let i = y; i >= y-1; i--) {
+            if(judgeChess){
+                break;
+            }
+            for (let j = x-1; j >= x-2; j--) {
+                if(isExist(j, i)){
+                    judgeChess = true;
+                    break;
+                }else if(j === x-2 && i === y-1){
+                    chess.checkEnemy(j, i);
+                }
+            }
+        }
+        judgeChess = false;
+        for (let i = y; i <= y+1; i++) {
+            if(judgeChess){
+                break;
+            }
+            for (let j = x-1; j >= x-2; j--) {
+                if(isExist(j, i)){
+                    judgeChess = true;
+                    break;
+                }else if(j === x-2 && i === y+1){
+                    chess.checkEnemy(j, i);
+                }
             }
         }
     }
