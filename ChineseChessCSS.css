@@ -1,0 +1,120 @@
+* {
+    /*先清除默认样式*/
+    margin: 0;
+    padding: 0;
+}
+
+/*背景颜色*/
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    background-color: #dedfde;
+}
+
+/*包含棋子，棋盘还有中间的字的整体样式*/
+#board-wrapper {
+    transform: translateX(-50%);
+    position: absolute;
+    left: 50%;
+    top: 100px;
+    animation: show 1s;
+}
+
+/*棋盘的样式*/
+#board {
+    background-color: #ebd58b;
+}
+
+#board-preview-points {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/*棋盘中间字体的CSS*/
+p {
+    position: absolute;
+    transform: translateX(-50%);
+    left: 50%;
+    top: 230px;
+    font-size: 40px;
+    font-family: WeiTi, serif;
+    color: black;
+}
+
+/*用于定义棋子的形状*/
+.piece {
+    width: 45px;
+    height: 45px;
+    border: solid 1px black;
+    border-radius: 50px;
+    text-align: center;
+    position: absolute;
+    box-shadow: 1px 1px 1px 2px #6e5c3e;
+}
+
+.piece:hover {
+    cursor: pointer;
+    box-shadow: 2px 2px 1px 2px #6e5c3e;
+    animation: changeColor 1s;
+}
+
+/*棋子名字的CSS*/
+.piece-name {
+    font-size: 40px;
+    font-family: WeiTi, serif;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.piece-opponent {
+    transform: rotate(180deg);
+}
+
+@font-face {
+    font-family: 'WeiTi';
+    src: url('font/WeiTi.ttf') format('truetype');
+}
+
+@keyframes rotateToBlack {
+    from{
+        transform: translateX(-50%);
+        left: 50%;
+    }
+    to{
+        transform: rotate(180deg);
+        left: 35%;
+    }
+}
+
+@keyframes rotateToRed {
+    from{
+        transform: rotate(180deg);
+        left: 35%;
+    }
+    to{
+        transform: translateX(-50%);
+        left: 50%;
+    }
+}
+
+@keyframes show {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes changeColor {
+    from {
+        background-color: #ebd588;
+    }
+    to {
+        background-color: peru;
+    }
+}
