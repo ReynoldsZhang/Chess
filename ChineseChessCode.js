@@ -403,78 +403,95 @@ function leader(chess, x, y) {
                 chess.checkEnemy(j, i);
             }
         }
-        for (let i = y; i < -1; i--) {
-            if(!chess.checkEnemy(x, i)){
-                clearPoint(x, i);
-            } else if(checkLeader(x, i, '将')){
-                chess.checkEnemy(x, i);
-            }
-        }
     } else {
-        for (let i = y + 1; i < y - 2; i--) {
+        for (let i = y + 1; i > y - 2; i--) {
             for (let j = x - 1; j < x + 2; j++) {
                 chess.checkEnemy(j, i);
-            }
-        }
-        for (let i = y; i < rowsNumbers; i++) {
-            if(!chess.checkEnemy(x, i)){
-                clearPoint(x, i);
-            } else if(checkLeader(x, i, '帅')){
-                chess.checkEnemy(x, i);
             }
         }
     }
 }
 
-function checkLeader(x, y, type){
-    return chessList[y][x].getChessName() === type;
+//检查是否将军
+function checkLeader(x, y, chess){
+    if(chess.getColor() === 'red'){
+        for (let i = y; i < -1; i--) {
+            if(!chess.checkEnemy(x, i)){
+                clearPoint(x, i);
+            } else {
+                chess.checkEnemy(x, i);
+            }
+        }
+    } else {
+        for (let i = y; i < rowsNumbers; i++) {
+            if(!chess.checkEnemy(x, i)){
+                clearPoint(x, i);
+            } else {
+                chess.checkEnemy(x, i);
+            }
+        }
+    }
+    return true;
 }
 
 //士的走路方式
 function keeper(chess, x, y) {
     if(chess.getColor() === 'red'){
-        if(x > 4 && x < 6 && y < 8){
-            chess.checkEnemy(x + 1, y + 1);
-            chess.checkEnemy(x - 1, y + 1);
+        if(x > 3 && x < 5 && y > 7){
+            if(y < rowsNumbers-1){
+                chess.checkEnemy(x + 1, y + 1);
+                chess.checkEnemy(x - 1, y + 1);
+            }
             chess.checkEnemy(x + 1, y - 1);
             chess.checkEnemy(x - 1, y - 1);
-        } else if(x === 4 && y < 8){
-            chess.checkEnemy(x + 1, y + 1);
+        } else if(x === 3 && y > 7){
+            if(y > rowsNumbers-1){
+                chess.checkEnemy(x + 1, y + 1);
+            }
             chess.checkEnemy(x + 1, y - 1);
-        } else if(x === 6 && y < 8){
+        } else if(x === 5 && y > 7){
             chess.checkEnemy(x - 1, y - 1);
-            chess.checkEnemy(x - 1, y + 1);
-        } else if(x === 4 && y === 8){
+            if(y > rowsNumbers-1){
+                chess.checkEnemy(x - 1, y + 1);
+            }
+        } else if(x === 3 && y === 7){
             chess.checkEnemy(x + 1, y + 1);
-        } else if(x === 6 && y === 8){
+        } else if(x === 5 && y === 7){
             chess.checkEnemy(x - 1, y + 1);
         }
     } else {
-        if(x > 4 && x < 6 && y < 3){
+        if(x > 3 && x < 5 && y < 2){
             chess.checkEnemy(x + 1, y + 1);
             chess.checkEnemy(x - 1, y + 1);
-            chess.checkEnemy(x + 1, y - 1);
-            chess.checkEnemy(x - 1, y - 1);
-        } else if(x === 4 && y < 3){
+            if(y > 0){
+                chess.checkEnemy(x + 1, y - 1);
+                chess.checkEnemy(x - 1, y - 1);
+            }
+        } else if(x === 3 && y < 2){
             chess.checkEnemy(x + 1, y + 1);
-            chess.checkEnemy(x + 1, y - 1);
-        } else if(x === 6 && y < 3){
-            chess.checkEnemy(x - 1, y - 1);
+            if(y > 0){
+                chess.checkEnemy(x + 1, y - 1);
+            }
+        } else if(x === 5 && y < 2){
+            if(y > 0){
+                chess.checkEnemy(x - 1, y - 1);
+            }
             chess.checkEnemy(x - 1, y + 1);
-        } else if(x === 4 && y === 3){
+        } else if(x === 3 && y === 2){
             chess.checkEnemy(x + 1, y - 1);
-        } else if(x === 6 && y === 3){
+        } else if(x === 5 && y === 2){
             chess.checkEnemy(x - 1, y - 1);
         }
     }
 }
 
 //炮的重复片段
-function canonRepeat(def, range, chess, x, y){
+function canonRepeatForY(def, range, chess, x, y){
     let count = 1;
     let type = null;
-    if(def < x || def < y){
-        for (let i = def; i < range;  i--) {
+
+    if(def < y){
+        for (let i = def; i > -1;  i--) {
             if (chess.checkEnemy(x, i)) {
                 if (count >= 2) {
                     break;
@@ -505,12 +522,48 @@ function canonRepeat(def, range, chess, x, y){
         }
     }
 }
+function canonRepeatForX(def, range, chess, x, y){
+    let count = 1;
+    let type = null;
+
+    if(def < x){
+        for (let i = def; i > -1;  i--) {
+            if (chess.checkEnemy(i, y)) {
+                if (count >= 2) {
+                    break;
+                }
+                type = chessList[y][i];
+                chessList[y][i].setTarget(false);
+                chessList[y][i].divElement.style.backgroundColor = "#ebd588";
+                count++;
+            }
+            if (type !== null) {
+                clearPoint(i, y);
+            }
+        }
+    } else {
+        for (let i = def; i < range;  i++) {
+            if (chess.checkEnemy(i, y)) {
+                if (count >= 2) {
+                    break;
+                }
+                type = chessList[y][i];
+                chessList[y][i].setTarget(false);
+                chessList[y][i].divElement.style.backgroundColor = "#ebd588";
+                count++;
+            }
+            if (type !== null) {
+                clearPoint(i, y);
+            }
+        }
+    }
+}
 //炮的走路方式
 function canon(chess, x, y) {
-    canonRepeat(y - 1, -1, chess, x, y);
-    canonRepeat(y + 1, rowsNumbers, chess, x, y);
-    canonRepeat(x - 1,  -1, chess, x, y);
-    canonRepeat(x + 1, columnsNumber, chess, x, y);
+    canonRepeatForY(y - 1, -1, chess, x, y);
+    canonRepeatForY(y + 1, rowsNumbers, chess, x, y);
+    canonRepeatForX(x - 1,  -1, chess, x, y);
+    canonRepeatForX(x + 1, columnsNumber, chess, x, y);
 }
 
 //象的走路方式
