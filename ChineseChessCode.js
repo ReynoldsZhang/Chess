@@ -325,7 +325,7 @@ function clearAll() {
 //判断选中棋子属于什么类型的
 function checkChessType(chess) {
     let x = chess.getX();
-    let y = chess.getY()
+    let y = chess.getY();
     let name = chess.getChessName();
 
     if (name === "兵" || name === "卒") {
@@ -621,30 +621,30 @@ function horse(chess, x, y) {
     }
     judgeChess = false;
     //右边两个日字
-    for (let i = y; i <= y + 1; i++) {
+    for (let i = x + 1; i <= x + 2; i++) {
         if (judgeChess) {
             break;
         }
-        for (let j = x + 1; j <= x + 2; j++) {
-            if (isExist(j, i)) {
+        for (let j = y; j <= y + 1; j++) {
+            if (isExist(i, j)) {
                 judgeChess = true;
                 break;
-            } else if (j === x + 2 && i === y + 1) {
-                chess.checkEnemy(j, i);
+            } else if (j === y + 1 && i === x + 2) {
+                chess.checkEnemy(i, j);
             }
         }
     }
     judgeChess = false;
-    for (let i = y; i >= y - 1; i--) {
+    for (let i = x + 1; i <= x + 2; i++) {
         if (judgeChess) {
             break;
         }
-        for (let j = x + 1; j <= x + 2; j++) {
-            if (isExist(j, i)) {
+        for (let j = y; j >= y - 1; j--) {
+            if (isExist(i, j)) {
                 judgeChess = true;
                 break;
-            } else if (j === x + 2 && i === y - 1) {
-                chess.checkEnemy(j, i);
+            } else if (j === y - 1 && i === x + 2) {
+                chess.checkEnemy(i, j);
             }
         }
     }
@@ -679,11 +679,11 @@ function horse(chess, x, y) {
     }
     judgeChess = false;
     //左边的两个日字
-    for (let i = y; i >= y - 1; i--) {
+    for (let j = x - 1; j >= x - 2; j--) {
         if (judgeChess) {
             break;
         }
-        for (let j = x - 1; j >= x - 2; j--) {
+        for (let i = y; i >= y - 1; i--) {
             if (isExist(j, i)) {
                 judgeChess = true;
                 break;
@@ -693,11 +693,11 @@ function horse(chess, x, y) {
         }
     }
     judgeChess = false;
-    for (let i = y; i <= y + 1; i++) {
+    for (let j = x - 1; j >= x - 2; j--) {
         if (judgeChess) {
             break;
         }
-        for (let j = x - 1; j >= x - 2; j--) {
+        for (let i = y; i <= y + 1; i++) {
             if (isExist(j, i)) {
                 judgeChess = true;
                 break;
