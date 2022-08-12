@@ -502,130 +502,24 @@ function onElephantClick(chess, x, y) {
 
 //马的走路方式
 function onHorseClick(chess, x, y) {
-    //TODO
+    function repeat(offsetX, offsetY, offsetX2, offsetY2) {
+        if (hasChess(x + offsetX2, y + offsetY2)) {
+            return;
+        }
+        console.log(x + offsetX2, y + offsetY2, " is empty");
+        if (getChess(x + offsetX, y + offsetY) === 0) {
+            drawPreview(x + offsetX, y + offsetY);
+        }
+    }
 
-    function repeat(offsetX, offsetY) {
-
-    }
-
-    let judgeChess = false; //用于判断是否有出现压马腿现象
-
-
-    //正上方两个日字
-    for (let i = x; i >= x - 1; i--) {
-        if (judgeChess) {
-            break;
-        }
-        for (let j = y - 1; j >= y - 2; j--) {
-            if (hasChess(i, j)) {
-                judgeChess = true;
-                break;
-            } else if (i === x - 1 && j === y - 2) {
-                drawPreview(i, j);
-            }
-        }
-    }
-    judgeChess = false;
-    for (let i = x; i <= x + 1; i++) {
-        if (judgeChess) {
-            break;
-        }
-        for (let j = y - 1; j >= y - 2; j--) {
-            if (hasChess(i, j)) {
-                judgeChess = true;
-                break;
-            } else if (i === x + 1 && j === y - 2) {
-                drawPreview(i, j);
-            }
-        }
-    }
-    judgeChess = false;
-    //右边两个日字
-    for (let i = x + 1; i <= x + 2; i++) {
-        if (judgeChess) {
-            break;
-        }
-        for (let j = y; j <= y + 1; j++) {
-            if (hasChess(i, j)) {
-                judgeChess = true;
-                break;
-            } else if (j === y + 1 && i === x + 2) {
-                drawPreview(i, j);
-            }
-        }
-    }
-    judgeChess = false;
-    for (let i = x + 1; i <= x + 2; i++) {
-        if (judgeChess) {
-            break;
-        }
-        for (let j = y; j >= y - 1; j--) {
-            if (hasChess(i, j)) {
-                judgeChess = true;
-                break;
-            } else if (j === y - 1 && i === x + 2) {
-                drawPreview(i, j);
-            }
-        }
-    }
-    judgeChess = false;
-    //正下方两个日字
-    for (let i = x; i <= x + 1; i++) {
-        if (judgeChess) {
-            break;
-        }
-        for (let j = y + 1; j <= y + 2; j++) {
-            if (hasChess(i, j)) {
-                judgeChess = true;
-                break;
-            } else if (i === x + 1 && j === y + 2) {
-                drawPreview(i, j);
-            }
-        }
-    }
-    judgeChess = false;
-    for (let i = x; i >= x - 1; i--) {
-        if (judgeChess) {
-            break;
-        }
-        for (let j = y + 1; j <= y + 2; j++) {
-            if (hasChess(i, j)) {
-                judgeChess = true;
-                break;
-            } else if (i === x - 1 && j === y + 2) {
-                drawPreview(i, j);
-            }
-        }
-    }
-    judgeChess = false;
-    //左边的两个日字
-    for (let j = x - 1; j >= x - 2; j--) {
-        if (judgeChess) {
-            break;
-        }
-        for (let i = y; i >= y - 1; i--) {
-            if (hasChess(j, i)) {
-                judgeChess = true;
-                break;
-            } else if (j === x - 2 && i === y - 1) {
-                drawPreview(j, i);
-            }
-        }
-    }
-    judgeChess = false;
-    for (let j = x - 1; j >= x - 2; j--) {
-        if (judgeChess) {
-            break;
-        }
-        for (let i = y; i <= y + 1; i++) {
-            if (hasChess(j, i)) {
-                judgeChess = true;
-                break;
-            } else if (j === x - 2 && i === y + 1) {
-                drawPreview(j, i);
-            }
-        }
-    }
+    repeat(1, 2, 0, 1);
+    repeat(-1, 2, 0, 1);
+    repeat(1, -2, 0, -1);
+    repeat(-1, -2, 0, -1);
+    repeat(2, 1, 1, 0);
+    repeat(2, -1, 1, 0);
+    repeat(-2, 1, -1, 0);
+    repeat(-2, -1, -1, 0);
 }
 
 //检查是否将军
