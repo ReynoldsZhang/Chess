@@ -1,9 +1,9 @@
 const piecesWrapper = document.getElementById('pieces-wrapper');
 
 //所有棋子的class
-class Chess {
-    constructor(chessName, xSet, ySet, color) {
-        this.chessName = chessName;
+class Piece {
+    constructor(pieceName, xSet, ySet, color) {
+        this.pieceName = pieceName;
         this.xSet = xSet;
         this.ySet = ySet;
         this.color = color;
@@ -33,8 +33,8 @@ class Chess {
         return this.color
     }
 
-    getChessName() {
-        return this.chessName;
+    getPieceName() {
+        return this.pieceName;
     }
 
     setX(x) {
@@ -66,7 +66,7 @@ class Chess {
         div.style.backgroundColor = "#ebd588";
         div.style.left = this.xSet * 50 + 5 + "px";
         div.style.top = this.ySet * 50 + 5 + "px";
-        div.innerHTML = "<div class='piece-name'>" + this.chessName + " </div>";
+        div.innerHTML = "<div class='piece-name'>" + this.pieceName + " </div>";
 
         div.addEventListener('click', function () {
             // console.log("piece clicked");
@@ -94,7 +94,7 @@ class Chess {
             }
             div.style.backgroundColor = "peru";
             selectedPieceElement = piece;
-            onChessClick(piece);
+            onPieceClick(piece);
         })
         this.divElement = div;
         piecesWrapper.appendChild(div);
@@ -107,7 +107,7 @@ const columnsNumber = 9; //棋盘宽度
 const spacing = 50; //spacing: 间距
 const board = document.getElementById("board"); // 获取棋盘 canvas 元素
 let context = board.getContext('2d'); // 获取棋盘 canvas 上下文
-// Chess List: 0 refer to empty, 1 refer to preview chess, Chess object refer to real chess
+// Piece List: 0 refer to empty, 1 refer to preview piece, Piece object refer to real piece
 let pieceList = new Array(rowsNumbers);
 let turn = "red"; //确认当前回合
 let selectedPieceElement = null; // 存储选中棋子元素
@@ -172,38 +172,38 @@ for (let i = 0; i < columnsNumber + 1; i++) {
 }
 
 //初始化所有棋子
-pieceList[9][8] = new Chess("车", 8, 9, "red");
-pieceList[9][0] = new Chess("车", 0, 9, "red");
-pieceList[0][8] = new Chess("车", 8, 0, "black");
-pieceList[0][0] = new Chess("车", 0, 0, "black");
+pieceList[9][8] = new Piece("车", 8, 9, "red");
+pieceList[9][0] = new Piece("车", 0, 9, "red");
+pieceList[0][8] = new Piece("车", 8, 0, "black");
+pieceList[0][0] = new Piece("车", 0, 0, "black");
 
-pieceList[9][7] = new Chess("马", 7, 9, "red");
-pieceList[9][1] = new Chess("马", 1, 9, "red");
-pieceList[0][7] = new Chess("马", 7, 0, "black");
-pieceList[0][1] = new Chess("马", 1, 0, "black");
+pieceList[9][7] = new Piece("马", 7, 9, "red");
+pieceList[9][1] = new Piece("马", 1, 9, "red");
+pieceList[0][7] = new Piece("马", 7, 0, "black");
+pieceList[0][1] = new Piece("马", 1, 0, "black");
 
-pieceList[9][6] = new Chess("相", 6, 9, "red");
-pieceList[9][2] = new Chess("相", 2, 9, "red");
-pieceList[0][6] = new Chess("象", 6, 0, "black");
-pieceList[0][2] = new Chess("象", 2, 0, "black");
+pieceList[9][6] = new Piece("相", 6, 9, "red");
+pieceList[9][2] = new Piece("相", 2, 9, "red");
+pieceList[0][6] = new Piece("象", 6, 0, "black");
+pieceList[0][2] = new Piece("象", 2, 0, "black");
 
-pieceList[9][5] = new Chess("仕", 5, 9, "red");
-pieceList[9][3] = new Chess("仕", 3, 9, "red");
-pieceList[0][5] = new Chess("士", 5, 0, "black");
-pieceList[0][3] = new Chess("士", 3, 0, "black");
+pieceList[9][5] = new Piece("仕", 5, 9, "red");
+pieceList[9][3] = new Piece("仕", 3, 9, "red");
+pieceList[0][5] = new Piece("士", 5, 0, "black");
+pieceList[0][3] = new Piece("士", 3, 0, "black");
 
-pieceList[7][7] = new Chess("炮", 7, 7, "red");
-pieceList[7][1] = new Chess("炮", 1, 7, "red");
-pieceList[2][7] = new Chess("炮", 7, 2, "black");
-pieceList[2][1] = new Chess("炮", 1, 2, "black");
+pieceList[7][7] = new Piece("炮", 7, 7, "red");
+pieceList[7][1] = new Piece("炮", 1, 7, "red");
+pieceList[2][7] = new Piece("炮", 7, 2, "black");
+pieceList[2][1] = new Piece("炮", 1, 2, "black");
 
-pieceList[9][4] = new Chess("帅", 4, 9, "red");
-pieceList[0][4] = new Chess("将", 4, 0, "black");
+pieceList[9][4] = new Piece("帅", 4, 9, "red");
+pieceList[0][4] = new Piece("将", 4, 0, "black");
 
 
 for (let i = 0; i < 9; i += 2) {
-    pieceList[6][i] = new Chess("兵", i, 6, "red");
-    pieceList[3][i] = new Chess("卒", i, 3, "black");
+    pieceList[6][i] = new Piece("兵", i, 6, "red");
+    pieceList[3][i] = new Piece("卒", i, 3, "black");
 }
 
 // 判断棋盘上面的这个点是否有棋子
@@ -220,7 +220,7 @@ function isLegal(x, y) {
     return x >= 0 && x < columnsNumber && y >= 0 && y < rowsNumbers;
 }
 
-function getChess(x, y) {
+function getPiece(x, y) {
     return isLegal(x, y) ? pieceList[y][x] : 0;
 }
 
@@ -246,7 +246,7 @@ function drawPreview(x, y) {
     if (!isLegal(x, y)) {
         return;
     }
-    let type = getChess(x, y);
+    let type = getPiece(x, y);
 
     if (type === 0) {
         drawPoint(x, y)
@@ -304,8 +304,8 @@ function clearPoint(x, y) {
 }
 
 //判断棋子的颜色是否正常
-function isCorrectColor(chess) {
-    return chess.divElement.style.backgroundColor !== "#ebd588";
+function isCorrectColor(piece) {
+    return piece.divElement.style.backgroundColor !== "#ebd588";
 }
 
 
@@ -314,7 +314,7 @@ previewPoints.addEventListener('click', function (e) {
     const x = Math.round((e.offsetX - spacing / 2) / spacing);
     const y = Math.round((e.offsetY - spacing / 2) / spacing);
 
-    if (getChess(x, y) === 1 && selectedPieceElement !== null) {
+    if (getPiece(x, y) === 1 && selectedPieceElement !== null) {
         moveSelectedPieceTo(x, y);
         nextTurn();
     }
@@ -340,12 +340,12 @@ function clearPreview() {
     for (let i = 0; i < rowsNumbers; i++) {
         for (let j = 0; j < columnsNumber; j++) {
             if (hasPiece(j, i)) {
-                if (isCorrectColor(getChess(j, i))) {
-                    getChess(j, i).setTarget(false);
+                if (isCorrectColor(getPiece(j, i))) {
+                    getPiece(j, i).setTarget(false);
                     continue;
                 }
             }
-            if (getChess(j, i) === 1) {
+            if (getPiece(j, i) === 1) {
                 clearPoint(j, i);
                 pieceList[i][j] = 0;
             }
@@ -353,38 +353,41 @@ function clearPreview() {
     }
 }
 
-// 当棋子被点击时触发
-function onChessClick(chess) {
-    let x = chess.getX();
-    let y = chess.getY();
-    let name = chess.getChessName();
+/**
+ * 当棋子被点击时触发
+ * @param {Piece} piece
+ * @returns {void}
+ */
+function onPieceClick(piece) {
+    let x = piece.getX();
+    let y = piece.getY();
+    let name = piece.getPieceName();
 
     switch (name) {
         case "兵":
         case "卒":
-            return onSoldierClick(chess, x, y);
+            return onSoldierClick(piece, x, y);
         case "将":
         case "帅":
-            return onGeneralClick(chess, x, y);
+            return onGeneralClick(piece, x, y);
         case "炮":
-            return onCannonClick(chess, x, y);
+            return onCannonClick(piece, x, y);
         case "士":
         case "仕":
-            return onAdvisorClick(chess, x, y);
+            return onAdvisorClick(piece, x, y);
         case "象":
         case "相":
-            return onElephantClick(chess, x, y);
+            return onElephantClick(piece, x, y);
         case "马":
-            return onHorseClick(chess, x, y);
+            return onHorseClick(piece, x, y);
         case "车":
-            return onChariotClick(chess, x, y);
+            return onChariotClick(piece, x, y);
     }
-    return false;
 }
 
 //小兵的走路方式
-function onSoldierClick(chess, x, y) {
-    if (chess.getColor() === "red") {
+function onSoldierClick(piece, x, y) {
+    if (piece.getColor() === "red") {
         if (y < 5) {
             drawPreviews({x: x + 1, y: y}, {x: x - 1, y: y});
         }
@@ -398,7 +401,7 @@ function onSoldierClick(chess, x, y) {
 }
 
 //车的走路方式
-function onChariotClick(chess, x, y) {
+function onChariotClick(piece, x, y) {
     function repeat(getNext) {
         let next = getNext(x, y);
         while (true) {
@@ -417,7 +420,7 @@ function onChariotClick(chess, x, y) {
 }
 
 //将的走路方式
-function onGeneralClick(chess, x, y) {
+function onGeneralClick(piece, x, y) {
     function repeat(x, y) {
         if (isInPalace(x, y)) {
             drawPreview(x, y);
@@ -431,7 +434,7 @@ function onGeneralClick(chess, x, y) {
 }
 
 //士的走路方式
-function onAdvisorClick(chess, x, y) {
+function onAdvisorClick(piece, x, y) {
     function repeat(x, y) {
         if (isInPalace(x, y)) {
             drawPreview(x, y);
@@ -445,7 +448,7 @@ function onAdvisorClick(chess, x, y) {
 }
 
 //炮的走路方式
-function onCannonClick(chess, x, y) {
+function onCannonClick(piece, x, y) {
     function repeat(getNext) {
         let next = getNext(x, y);
         // 沿着当前方向一直往前，直到碰到棋子或者边界
@@ -457,14 +460,14 @@ function onCannonClick(chess, x, y) {
             next = getNext(next.x, next.y);
         }
         // 如果碰到的是棋子，则可以当做跳板
-        if (hasPiece(next.x, next.y) && getChess(next.x, next.y) !== 0) {
+        if (hasPiece(next.x, next.y) && getPiece(next.x, next.y) !== 0) {
             // 在跳板后继续寻找
             do {
                 next = getNext(next.x, next.y);
                 // 直到碰到的不是空位为止
             } while (isEmpty(next.x, next.y));
             // 如果碰到的是棋子，且不是自己的棋子，则可以当做目标
-            if (hasPiece(next.x, next.y) && !isColorTurn(getChess(next.x, next.y).getColor())) {
+            if (hasPiece(next.x, next.y) && !isColorTurn(getPiece(next.x, next.y).getColor())) {
                 drawPreview(next.x, next.y);
             }
         }
@@ -477,14 +480,14 @@ function onCannonClick(chess, x, y) {
 }
 
 //象的走路方式
-function onElephantClick(chess, x, y) {
+function onElephantClick(piece, x, y) {
     function repeat(offsetX, offsetY) {
-        if (getChess(x + offsetX / 2, y + offsetY / 2) === 0) {
+        if (getPiece(x + offsetX / 2, y + offsetY / 2) === 0) {
             drawPreview(x + offsetX, y + offsetY);
         }
     }
 
-    if (chess.getColor() === "red") {
+    if (piece.getColor() === "red") {
         if (y >= 7) {
             repeat(-2, -2);
             repeat(2, -2);
@@ -502,12 +505,12 @@ function onElephantClick(chess, x, y) {
 }
 
 //马的走路方式
-function onHorseClick(chess, x, y) {
+function onHorseClick(piece, x, y) {
     function repeat(offsetX, offsetY, offsetX2, offsetY2) {
         if (hasPiece(x + offsetX2, y + offsetY2)) {
             return;
         }
-        if (getChess(x + offsetX, y + offsetY) === 0) {
+        if (getPiece(x + offsetX, y + offsetY) === 0) {
             drawPreview(x + offsetX, y + offsetY);
         }
     }
@@ -523,9 +526,9 @@ function onHorseClick(chess, x, y) {
 }
 
 //检查是否将军
-function checkLeader(x, y, chess) {
+function checkLeader(x, y, piece) {
     // TODO
-    if (chess.getColor() === 'red') {
+    if (piece.getColor() === 'red') {
         for (let i = y; i < -1; i--) {
             if (!drawPreview(x, i)) {
                 clearPoint(x, i);
