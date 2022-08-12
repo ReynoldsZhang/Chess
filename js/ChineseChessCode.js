@@ -193,8 +193,8 @@ chessList[7][1] = new Chess("炮", 1, 7, "red");
 chessList[2][7] = new Chess("炮", 7, 2, "black");
 chessList[2][1] = new Chess("炮", 1, 2, "black");
 
-chessList[9][4] = new Chess("帅", 4, 9, "red");
-chessList[0][4] = new Chess("将", 4, 0, "black");
+let redLeader = chessList[9][4] = new Chess("帅", 4, 9, "red");
+let blackLeader = chessList[0][4] = new Chess("将", 4, 0, "black");
 
 
 for (let i = 0; i < 9; i += 2) {
@@ -246,7 +246,7 @@ function drawPreview(x, y) {
     let type = getChess(x, y);
 
     if (type === 0) {
-        drawPoint(x, y)
+        drawPoint(x, y);
         return; // false
     }
     if (!isSameChessColor(type.getColor())) {
@@ -321,7 +321,15 @@ previewPoints.addEventListener('click', function (e) {
     if (getChess(x, y) === 1) {
         moveChess(x, y);
     }
+    if(chessList[y][x].chessName === ('帅' || '将')){
+        if(chessList[y][x].chessName === '帅'){
+            redLeader = chessList[y][x];
+        }else{
+            blackLeader = chessList[y][x];
+        }
+    }
     nextTurn();
+    checkLeader();
 })
 
 function moveChess(x, y) {
@@ -502,7 +510,6 @@ function onElephantClick(chess, x, y) {
 
 //马的走路方式
 function onHorseClick(chess, x, y) {
-    //TODO
     let judgeChess = false; //用于判断是否有出现压马腿现象
 
 
@@ -623,25 +630,25 @@ function onHorseClick(chess, x, y) {
     }
 }
 
-//检查是否将军
-function checkLeader(x, y, chess) {
+//检查双方leader是否撞面
+function checkLeader() {
     // TODO
-    if (chess.getColor() === 'red') {
-        for (let i = y; i < -1; i--) {
-            if (!drawPreview(x, i)) {
-                clearPoint(x, i);
-            } else {
-                drawPreview(x, i);
+    let y = redLeader.getY() - 1;
+    let x = redLeader.getX();
+
+    do{
+        let type = chessList[y][x];
+        if(hasChess(x, y)){
+            if(blackLeader.getChessName() === type.getChessName()){
+                return ending();
             }
+            break;
         }
-    } else {
-        for (let i = y; i < rowsNumbers; i++) {
-            if (!drawPreview(x, i)) {
-                clearPoint(x, i);
-            } else {
-                drawPreview(x, i);
-            }
-        }
-    }
-    return true;
+        y--;
+    } while(y >= 0)
+}
+
+//游戏结束
+function ending(){
+    alert(turn + " WIN !");
 }
