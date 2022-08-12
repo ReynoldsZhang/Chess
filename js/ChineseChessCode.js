@@ -1,4 +1,4 @@
-const boardWrapper = document.getElementById('board-wrapper');
+const piecesWrapper = document.getElementById('pieces-wrapper');
 
 //所有棋子的class
 class Chess {
@@ -7,19 +7,18 @@ class Chess {
         this.xSet = xSet;
         this.ySet = ySet;
         this.color = color;
-        this.isTarget = false;
-        this.createPieces();
-
+        this.isTargeted = false;
+        this.createPiece();
     }
 
-    getTarget() {
-        return this.isTarget;
+    isTarget() {
+        return this.isTargeted;
     }
 
     // 把修改背景颜色合并到这个方法里
     setTarget(isTarget) {
         isTarget ? this.divElement.style.backgroundColor = "#a52a2a" : this.divElement.style.backgroundColor = "#ebd588";
-        this.isTarget = isTarget;
+        this.isTargeted = isTarget;
     }
 
     getX() {
@@ -46,8 +45,16 @@ class Chess {
         this.ySet = y;
     }
 
+    getDivElement() {
+        return this.divElement;
+    }
+
+    eaten() {
+        this.divElement.style.display = "none";
+    }
+
     //画棋子
-    createPieces() {
+    createPiece() {
         let div = document.createElement("div");
         if (this.color === "red") {
             div.className = "piece";
@@ -62,38 +69,36 @@ class Chess {
         div.innerHTML = "<div class='piece-name'>" + this.chessName + " </div>";
 
         div.addEventListener('click', function () {
-
+            // console.log("piece clicked");
             const x = Math.round(div.offsetLeft / 50);
             const y = Math.round(div.offsetTop / 50);
 
-            let chess = chessList[y][x];
-            if (!hasChess(x, y)) {
-                return false;
+            if (!hasPiece(x, y)) {
+                return;
             }
-            if (!isSameChessColor(div.style.color)) {
-                if (selectedChessElement !== null) {
+            let piece = pieceList[y][x];
+            if (!isColorTurn(div.style.color)) {
+                if (selectedPieceElement !== null) {
                     //用于表示棋子吃掉对方的操作
-                    if (chess.getTarget()) {
-                        div.style.display = "none";
-                        moveChess(x, y);
+                    if (piece.isTarget()) {
+                        moveSelectedPieceTo(x, y);
+                        piece.eaten();
                         nextTurn();
                     }
                 }
-                return false;
+                return;
             }
-            if (selectedChessElement !== null) {
-                clearAll();
-                selectedChessElement.style.backgroundColor = "#ebd588";
+            if (selectedPieceElement !== null) {
+                clearPreview();
+                selectedPieceElement.getDivElement().style.backgroundColor = "#ebd588";
             }
             div.style.backgroundColor = "peru";
-            selectedChessElement = div;
-            chessElement = chess;
-            onChessClick(chess);
+            selectedPieceElement = piece;
+            onChessClick(piece);
         })
         this.divElement = div;
-        boardWrapper.appendChild(div);
+        piecesWrapper.appendChild(div);
     }
-
 }
 
 
@@ -103,16 +108,15 @@ const spacing = 50; //spacing: 间距
 const board = document.getElementById("board"); // 获取棋盘 canvas 元素
 let context = board.getContext('2d'); // 获取棋盘 canvas 上下文
 // Chess List: 0 refer to empty, 1 refer to preview chess, Chess object refer to real chess
-let chessList = new Array(rowsNumbers);
+let pieceList = new Array(rowsNumbers);
 let turn = "red"; //确认当前回合
-let selectedChessElement = null; // 用于存储当前选中棋子的style
-let chessElement;
+let selectedPieceElement = null; // 存储选中棋子元素
 
 //初始化棋盘数组
 for (let i = 0; i < rowsNumbers; i++) {
-    chessList[i] = new Array(columnsNumber);
+    pieceList[i] = new Array(columnsNumber);
     for (let j = 0; j < columnsNumber; j++) {
-        chessList[i][j] = 0;
+        pieceList[i][j] = 0;
     }
 }
 
@@ -168,48 +172,48 @@ for (let i = 0; i < columnsNumber + 1; i++) {
 }
 
 //初始化所有棋子
-chessList[9][8] = new Chess("车", 8, 9, "red");
-chessList[9][0] = new Chess("车", 0, 9, "red");
-chessList[0][8] = new Chess("车", 8, 0, "black");
-chessList[0][0] = new Chess("车", 0, 0, "black");
+pieceList[9][8] = new Chess("车", 8, 9, "red");
+pieceList[9][0] = new Chess("车", 0, 9, "red");
+pieceList[0][8] = new Chess("车", 8, 0, "black");
+pieceList[0][0] = new Chess("车", 0, 0, "black");
 
-chessList[9][7] = new Chess("马", 7, 9, "red");
-chessList[9][1] = new Chess("马", 1, 9, "red");
-chessList[0][7] = new Chess("马", 7, 0, "black");
-chessList[0][1] = new Chess("马", 1, 0, "black");
+pieceList[9][7] = new Chess("马", 7, 9, "red");
+pieceList[9][1] = new Chess("马", 1, 9, "red");
+pieceList[0][7] = new Chess("马", 7, 0, "black");
+pieceList[0][1] = new Chess("马", 1, 0, "black");
 
-chessList[9][6] = new Chess("相", 6, 9, "red");
-chessList[9][2] = new Chess("相", 2, 9, "red");
-chessList[0][6] = new Chess("象", 6, 0, "black");
-chessList[0][2] = new Chess("象", 2, 0, "black");
+pieceList[9][6] = new Chess("相", 6, 9, "red");
+pieceList[9][2] = new Chess("相", 2, 9, "red");
+pieceList[0][6] = new Chess("象", 6, 0, "black");
+pieceList[0][2] = new Chess("象", 2, 0, "black");
 
-chessList[9][5] = new Chess("仕", 5, 9, "red");
-chessList[9][3] = new Chess("仕", 3, 9, "red");
-chessList[0][5] = new Chess("士", 5, 0, "black");
-chessList[0][3] = new Chess("士", 3, 0, "black");
+pieceList[9][5] = new Chess("仕", 5, 9, "red");
+pieceList[9][3] = new Chess("仕", 3, 9, "red");
+pieceList[0][5] = new Chess("士", 5, 0, "black");
+pieceList[0][3] = new Chess("士", 3, 0, "black");
 
-chessList[7][7] = new Chess("炮", 7, 7, "red");
-chessList[7][1] = new Chess("炮", 1, 7, "red");
-chessList[2][7] = new Chess("炮", 7, 2, "black");
-chessList[2][1] = new Chess("炮", 1, 2, "black");
+pieceList[7][7] = new Chess("炮", 7, 7, "red");
+pieceList[7][1] = new Chess("炮", 1, 7, "red");
+pieceList[2][7] = new Chess("炮", 7, 2, "black");
+pieceList[2][1] = new Chess("炮", 1, 2, "black");
 
-chessList[9][4] = new Chess("帅", 4, 9, "red");
-chessList[0][4] = new Chess("将", 4, 0, "black");
+pieceList[9][4] = new Chess("帅", 4, 9, "red");
+pieceList[0][4] = new Chess("将", 4, 0, "black");
 
 
 for (let i = 0; i < 9; i += 2) {
-    chessList[6][i] = new Chess("兵", i, 6, "red");
-    chessList[3][i] = new Chess("卒", i, 3, "black");
+    pieceList[6][i] = new Chess("兵", i, 6, "red");
+    pieceList[3][i] = new Chess("卒", i, 3, "black");
 }
 
 // 判断棋盘上面的这个点是否有棋子
-function hasChess(x, y) {
-    return isLegal(x, y) && chessList[y][x] !== 0 && chessList[y][x] !== 1;
+function hasPiece(x, y) {
+    return isLegal(x, y) && pieceList[y][x] !== 0 && pieceList[y][x] !== 1;
 }
 
 // 判断这个点是否什么都没有
 function isEmpty(x, y) {
-    return isLegal(x, y) && (chessList[y][x] === 0 || chessList[y][x] === 1);
+    return isLegal(x, y) && (pieceList[y][x] === 0 || pieceList[y][x] === 1);
 }
 
 function isLegal(x, y) {
@@ -217,14 +221,13 @@ function isLegal(x, y) {
 }
 
 function getChess(x, y) {
-    return isLegal(x, y) ? chessList[y][x] : 0;
+    return isLegal(x, y) ? pieceList[y][x] : 0;
 }
 
 //下一个回合，棋盘和数组进行翻转
 function nextTurn() {
     turn = turn === "red" ? "black" : "red";
-    selectedChessElement = null;
-    chessElement = null;
+    selectedPieceElement = null;
     /*
     if (turn === "black") {
         document.getElementById("board-wrapper").style.animation = "rotateToBlack 2s ease-in-out forwards";
@@ -249,7 +252,7 @@ function drawPreview(x, y) {
         drawPoint(x, y)
         return; // false
     }
-    if (!isSameChessColor(type.getColor())) {
+    if (!isColorTurn(type.getColor())) {
         type.setTarget(true);
     }
 }
@@ -265,7 +268,7 @@ function drawPreviews(...args) {
 }
 
 //判断所点击的棋子是否是我方棋子
-function isSameChessColor(color) {
+function isColorTurn(color) {
     return color === turn;
 }
 
@@ -291,7 +294,8 @@ function drawPoint(x, y) {
     previewCtx.arc(spacing / 2 + x * spacing, spacing / 2 + y * spacing, 10, 0, 2 * Math.PI);
     previewCtx.fill();
     previewCtx.closePath();
-    chessList[y][x] = 1;
+    console.log("draw:" + x + "," + y);
+    pieceList[y][x] = 1;
 }
 
 //清除画出来的点
@@ -300,53 +304,50 @@ function clearPoint(x, y) {
 }
 
 //判断棋子的颜色是否正常
-function normalColor(chess) {
+function isCorrectColor(chess) {
     return chess.divElement.style.backgroundColor !== "#ebd588";
 }
 
 
 previewPoints.addEventListener('click', function (e) {
+    // console.log("preview click")
     const x = Math.round((e.offsetX - spacing / 2) / spacing);
     const y = Math.round((e.offsetY - spacing / 2) / spacing);
 
-    if (!isLegal(x, y)) {
-        return;
+    if (getChess(x, y) === 1 && selectedPieceElement !== null) {
+        moveSelectedPieceTo(x, y);
+        nextTurn();
     }
-    if (getChess(x, y) === 0) {
-        return;
-    }
-    if (selectedChessElement === null) {
-        return;
-    }
-    if (getChess(x, y) === 1) {
-        moveChess(x, y);
-    }
-    nextTurn();
 })
 
-function moveChess(x, y) {
-    chessList[chessElement.getY()][chessElement.getX()] = 1;
-    chessElement.setX(x);
-    chessElement.setY(y);
-    selectedChessElement.style.left = x * 50 + 5 + 'px';
-    selectedChessElement.style.top = y * 50 + 5 + 'px';
-    chessList[y][x] = chessElement;
-    clearAll();
+function moveSelectedPieceTo(x, y) {
+    clearPreview();
+    pieceList[selectedPieceElement.getY()][selectedPieceElement.getX()] = 0;
+    // console.log("set " + selectedPieceElement.getX() + "," + selectedPieceElement.getY() + " to 1");
+    selectedPieceElement.setX(x);
+    selectedPieceElement.setY(y);
+    let style = selectedPieceElement.getDivElement().style;
+    style.transitionDuration = ".5s";
+    style.zIndex = "10";
+    setTimeout(() => style.zIndex = "1", 1000)
+    style.left = x * 50 + 5 + 'px';
+    style.top = y * 50 + 5 + 'px';
+    pieceList[y][x] = selectedPieceElement;
 }
 
 //清除所有之前画的点，在用完成移动棋子之后。
-function clearAll() {
+function clearPreview() {
     for (let i = 0; i < rowsNumbers; i++) {
         for (let j = 0; j < columnsNumber; j++) {
-            if (hasChess(j, i)) {
-                if (normalColor(getChess(j, i))) {
+            if (hasPiece(j, i)) {
+                if (isCorrectColor(getChess(j, i))) {
                     getChess(j, i).setTarget(false);
                     continue;
                 }
             }
             if (getChess(j, i) === 1) {
                 clearPoint(j, i);
-                chessList[i][j] = 0;
+                pieceList[i][j] = 0;
             }
         }
     }
@@ -456,14 +457,14 @@ function onCannonClick(chess, x, y) {
             next = getNext(next.x, next.y);
         }
         // 如果碰到的是棋子，则可以当做跳板
-        if (hasChess(next.x, next.y) && getChess(next.x, next.y) !== 0) {
+        if (hasPiece(next.x, next.y) && getChess(next.x, next.y) !== 0) {
             // 在跳板后继续寻找
             do {
                 next = getNext(next.x, next.y);
                 // 直到碰到的不是空位为止
             } while (isEmpty(next.x, next.y));
             // 如果碰到的是棋子，且不是自己的棋子，则可以当做目标
-            if (hasChess(next.x, next.y) && !isSameChessColor(getChess(next.x, next.y).getColor())) {
+            if (hasPiece(next.x, next.y) && !isColorTurn(getChess(next.x, next.y).getColor())) {
                 drawPreview(next.x, next.y);
             }
         }
@@ -503,10 +504,9 @@ function onElephantClick(chess, x, y) {
 //马的走路方式
 function onHorseClick(chess, x, y) {
     function repeat(offsetX, offsetY, offsetX2, offsetY2) {
-        if (hasChess(x + offsetX2, y + offsetY2)) {
+        if (hasPiece(x + offsetX2, y + offsetY2)) {
             return;
         }
-        console.log(x + offsetX2, y + offsetY2, " is empty");
         if (getChess(x + offsetX, y + offsetY) === 0) {
             drawPreview(x + offsetX, y + offsetY);
         }
