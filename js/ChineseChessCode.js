@@ -217,7 +217,7 @@ function isLegal(x, y) {
 }
 
 function getChess(x, y) {
-    return chessList[y][x];
+    return isLegal(x, y) ? chessList[y][x] : 0;
 }
 
 //下一个回合，棋盘和数组进行翻转
@@ -456,14 +456,14 @@ function onCannonClick(chess, x, y) {
             next = getNext(next.x, next.y);
         }
         // 如果碰到的是棋子，则可以当做跳板
-        if (isLegal(next.x, next.y) && getChess(next.x, next.y) !== 0) {
+        if (hasChess(next.x, next.y) && getChess(next.x, next.y) !== 0) {
             // 在跳板后继续寻找
             do {
                 next = getNext(next.x, next.y);
                 // 直到碰到的不是空位为止
             } while (isEmpty(next.x, next.y));
             // 如果碰到的是棋子，且不是自己的棋子，则可以当做目标
-            if (isLegal(next.x, next.y) && !isSameChessColor(getChess(next.x, next.y).getColor())) {
+            if (hasChess(next.x, next.y) && !isSameChessColor(getChess(next.x, next.y).getColor())) {
                 drawPreview(next.x, next.y);
             }
         }
@@ -503,6 +503,11 @@ function onElephantClick(chess, x, y) {
 //马的走路方式
 function onHorseClick(chess, x, y) {
     //TODO
+
+    function repeat(offsetX, offsetY) {
+
+    }
+
     let judgeChess = false; //用于判断是否有出现压马腿现象
 
 
