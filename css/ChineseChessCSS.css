@@ -57,7 +57,8 @@ p {
 .piece:hover {
     cursor: pointer;
     box-shadow: 2px 2px 1px 2px #6e5c3e;
-    animation: changeColor 1s;
+    background-color: peru;
+    /*animation: changeColor 1s;*/
 }
 
 /*棋子名字的CSS*/
@@ -76,7 +77,7 @@ p {
 
 @font-face {
     font-family: 'WeiTi';
-    src: url('font/WeiTi.ttf') format('truetype');
+    src: url('../font/WeiTi.ttf') format('truetype');
 }
 
 @keyframes rotateToBlack {
