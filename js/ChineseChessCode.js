@@ -246,24 +246,14 @@ function drawPreview(x, y) {
     if (!isLegal(x, y)) {
         return;
     }
-    let type = getPiece(x, y);
+    let piece = getPiece(x, y);
 
-    if (type === 0) {
+    if (piece === 0) {
         drawPoint(x, y)
         return; // false
     }
-    if (!isColorTurn(type.getColor())) {
-        type.setTarget(true);
-    }
-}
-
-/**
- *
- * @param {{x:number, y:number}} args
- */
-function drawPreviews(...args) {
-    for (let i = 0; i < args.length; i++) {
-        drawPreview(args[i].x, args[i].y);
+    if (!isColorTurn(piece.getColor())) {
+        piece.setTarget(true);
     }
 }
 
@@ -362,39 +352,54 @@ function onPieceClick(piece) {
     let x = piece.getX();
     let y = piece.getY();
     let name = piece.getPieceName();
-
+    /**
+     * @type {function}
+     */
+    let func = null;
     switch (name) {
         case "兵":
         case "卒":
-            return onSoldierClick(piece, x, y);
+            func = onSoldierClick;
+            break;
         case "将":
         case "帅":
-            return onGeneralClick(piece, x, y);
+            func = onGeneralClick;
+            break;
         case "炮":
-            return onCannonClick(piece, x, y);
+            func = onCannonClick;
+            break;
         case "士":
         case "仕":
-            return onAdvisorClick(piece, x, y);
+            func = onAdvisorClick;
+            break;
         case "象":
         case "相":
-            return onElephantClick(piece, x, y);
+            func = onElephantClick;
+            break;
         case "马":
-            return onHorseClick(piece, x, y);
+            func = onHorseClick;
+            break;
         case "车":
-            return onChariotClick(piece, x, y);
+            func = onChariotClick;
+            break;
+        default:
+            return;
     }
+    func(piece, x, y);
 }
 
 //小兵的走路方式
 function onSoldierClick(piece, x, y) {
     if (piece.getColor() === "red") {
         if (y < 5) {
-            drawPreviews({x: x + 1, y: y}, {x: x - 1, y: y});
+            drawPreview(x + 1, y);
+            drawPreview(x - 1, y);
         }
         drawPreview(x, y - 1);
     } else {
         if (y > 4) {
-            drawPreviews({x: x + 1, y: y}, {x: x - 1, y: y});
+            drawPreview(x + 1, y);
+            drawPreview(x - 1, y);
         }
         drawPreview(x, y + 1);
     }
