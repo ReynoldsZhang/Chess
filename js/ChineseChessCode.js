@@ -74,9 +74,13 @@ class Chess {
                 if (selectedChessElement !== null) {
                     //用于表示棋子吃掉对方的操作
                     if (chess.getTarget()) {
+                        if(chess.getChessName() === ("将" || "帅")){
+                            return ending();
+                        }
                         div.style.display = "none";
                         moveChess(x, y);
                         nextTurn();
+                        checkLeader();
                     }
                 }
                 return false;
@@ -646,6 +650,11 @@ function checkLeader() {
         }
         y--;
     } while(y >= 0)
+}
+
+//判断是否将军
+function isEnd(chess){
+
 }
 
 //游戏结束
