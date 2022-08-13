@@ -197,8 +197,8 @@ pieceList[7][1] = new Piece("炮", 1, 7, "red");
 pieceList[2][7] = new Piece("炮", 7, 2, "black");
 pieceList[2][1] = new Piece("炮", 1, 2, "black");
 
-pieceList[9][4] = new Piece("帅", 4, 9, "red");
-pieceList[0][4] = new Piece("将", 4, 0, "black");
+let redLeader = pieceList[9][4] = new Piece("帅", 4, 9, "red");
+let blackLeader = pieceList[0][4] = new Piece("将", 4, 0, "black");
 
 
 for (let i = 0; i < 9; i += 2) {
@@ -530,25 +530,30 @@ function onHorseClick(piece, x, y) {
     repeat(-2, -1, -1, 0);
 }
 
-//检查是否将军
-function checkLeader(x, y, piece) {
+//检查双方leader是否撞面
+function checkLeader() {
     // TODO
-    if (piece.getColor() === 'red') {
-        for (let i = y; i < -1; i--) {
-            if (!drawPreview(x, i)) {
-                clearPoint(x, i);
-            } else {
-                drawPreview(x, i);
+    let y = redLeader.getY() - 1;
+    let x = redLeader.getX();
+
+    do{
+        let type = chessList[y][x];
+        if(hasPiece(x, y)){
+            if(blackLeader.getPieceName() === type.getPieceName()){
+                return ending();
             }
+            break;
         }
-    } else {
-        for (let i = y; i < rowsNumbers; i++) {
-            if (!drawPreview(x, i)) {
-                clearPoint(x, i);
-            } else {
-                drawPreview(x, i);
-            }
-        }
-    }
-    return true;
+        y--;
+    } while(y >= 0)
+}
+
+//判断是否将军
+function isEnd(chess){
+
+}
+
+//游戏结束
+function ending(){
+    alert(turn + " WIN !");
 }
