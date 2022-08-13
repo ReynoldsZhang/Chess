@@ -69,7 +69,6 @@ class Piece {
         div.innerHTML = "<div class='piece-name'>" + this.pieceName + " </div>";
 
         div.addEventListener('click', function () {
-            // console.log("piece clicked");
             const x = Math.round(div.offsetLeft / 50);
             const y = Math.round(div.offsetTop / 50);
 
@@ -78,24 +77,29 @@ class Piece {
             }
             let piece = pieceList[y][x];
             if (!isColorTurn(div.style.color)) {
-                if (selectedPieceElement !== null) {
+                if (isSelected()) {
                     //用于表示棋子吃掉对方的操作
                     if (piece.isTarget()) {
-                        moveSelectedPieceTo(x, y);
-                        piece.eaten();
-                        nextTurn();
+                        if (moveSelectedPieceTo(x, y)) {
+                            piece.eaten();
+                            nextTurn();
+                        }
                     }
                 }
                 return;
             }
-            if (selectedPieceElement !== null) {
+            if (isSelected()) {
                 clearPreview();
                 selectedPieceElement.getDivElement().style.backgroundColor = "#ebd588";
             }
-            div.style.backgroundColor = "peru";
-            selectedPieceElement = piece;
-            onPieceClick(piece);
-        })
+            if (selectedPieceElement === piece) {
+                selectedPieceElement = null;
+            } else {
+                div.style.backgroundColor = "peru";
+                selectedPieceElement = piece;
+                foreachPointsCanPlace(piece, (x, y) => drawPreview(x, y));
+            }
+        });
         this.divElement = div;
         piecesWrapper.appendChild(div);
     }
@@ -111,6 +115,10 @@ let context = board.getContext('2d'); // 获取棋盘 canvas 上下文
 let pieceList = new Array(rowsNumbers);
 let turn = "red"; //确认当前回合
 let selectedPieceElement = null; // 存储选中棋子元素
+
+function isSelected() {
+    return selectedPieceElement !== null;
+}
 
 //初始化棋盘数组
 for (let i = 0; i < rowsNumbers; i++) {
@@ -300,29 +308,62 @@ function isCorrectColor(piece) {
 
 
 previewPoints.addEventListener('click', function (e) {
-    // console.log("preview click")
     const x = Math.round((e.offsetX - spacing / 2) / spacing);
     const y = Math.round((e.offsetY - spacing / 2) / spacing);
 
     if (getPiece(x, y) === 1 && selectedPieceElement !== null) {
-        moveSelectedPieceTo(x, y);
-        nextTurn();
+        if (moveSelectedPieceTo(x, y)) {
+            nextTurn();
+        }
     }
 })
 
+/**
+ * 移动选中的棋子到指定的位置
+ * @param x 新的x坐标
+ * @param y 新的y坐标
+ * @return {boolean} 操作成功或失败
+ */
 function moveSelectedPieceTo(x, y) {
+    // 先移动数据层面，不渲染到棋盘
+    let prevX = selectedPieceElement.getX();
+    let prevY = selectedPieceElement.getY();
+    let prevPiece = getPiece(x, y);
     clearPreview();
-    pieceList[selectedPieceElement.getY()][selectedPieceElement.getX()] = 0;
-    // console.log("set " + selectedPieceElement.getX() + "," + selectedPieceElement.getY() + " to 1");
+    pieceList[prevY][prevX] = 0;
     selectedPieceElement.setX(x);
     selectedPieceElement.setY(y);
-    let style = selectedPieceElement.getDivElement().style;
-    style.transitionDuration = ".5s";
-    style.zIndex = "10";
-    setTimeout(() => style.zIndex = "1", 1000)
-    style.left = x * 50 + 5 + 'px';
-    style.top = y * 50 + 5 + 'px';
     pieceList[y][x] = selectedPieceElement;
+    // 检测如果移动后是否将军
+    if (!beforeMoveCheck(x, y)) {
+        pieceList[y][x] = prevPiece;
+        selectedPieceElement.setX(prevX);
+        selectedPieceElement.setY(prevY);
+        pieceList[prevY][prevX] = selectedPieceElement;
+        foreachPointsCanPlace(selectedPieceElement, (x, y) => drawPreview(x, y));
+        return false;
+    } else {
+        let style = selectedPieceElement.getDivElement().style;
+        style.transitionDuration = ".5s";
+        style.zIndex = "10";
+        setTimeout(() => style.zIndex = "1", 1000)
+        style.left = x * 50 + 5 + 'px';
+        style.top = y * 50 + 5 + 'px';
+        return true;
+    }
+}
+
+/**
+ *
+ * @param x 新的x坐标
+ * @param y 新的y坐标
+ * @return {boolean} 是否可以移动
+ */
+function beforeMoveCheck(x, y) {
+    // TODO 判断是否可以移动 （在此判断是否可以将军）
+    // TODO 下一步不能造成对己方的将军（如移开一个棋子造成将在车的范围内，或移开了马腿让马能够将军），如果造成将军，则应该返回false
+    // TODO 如果对敌方能够造成将军，则应该给予提示（alert） 提醒被将军
+    return true;
 }
 
 //清除所有之前画的点，在用完成移动棋子之后。
@@ -346,11 +387,10 @@ function clearPreview() {
 /**
  * 当棋子被点击时触发
  * @param {Piece} piece
+ * @param {function} callback
  * @returns {void}
  */
-function onPieceClick(piece) {
-    let x = piece.getX();
-    let y = piece.getY();
+function foreachPointsCanPlace(piece, callback) {
     let name = piece.getPieceName();
     /**
      * @type {function}
@@ -359,58 +399,60 @@ function onPieceClick(piece) {
     switch (name) {
         case "兵":
         case "卒":
-            func = onSoldierClick;
+            func = foreachPointsSoldierCanPlace;
             break;
         case "将":
         case "帅":
-            func = onGeneralClick;
+            func = foreachPointsGeneralCanPlace;
             break;
         case "炮":
-            func = onCannonClick;
+            func = foreachPointsCannonCanPlace;
             break;
         case "士":
         case "仕":
-            func = onAdvisorClick;
+            func = foreachPointsAdvisorCanPlace;
             break;
         case "象":
         case "相":
-            func = onElephantClick;
+            func = foreachPointsElephantCanPlace;
             break;
         case "马":
-            func = onHorseClick;
+            func = foreachPointsHorseCanPlace;
             break;
         case "车":
-            func = onChariotClick;
+            func = foreachPointsChariotCanPlace;
             break;
         default:
             return;
     }
-    func(piece, x, y);
+    func(piece, callback);
 }
 
 //小兵的走路方式
-function onSoldierClick(piece, x, y) {
+function foreachPointsSoldierCanPlace(piece, callback) {
+    let x = piece.getX();
+    let y = piece.getY();
     if (piece.getColor() === "red") {
         if (y < 5) {
-            drawPreview(x + 1, y);
-            drawPreview(x - 1, y);
+            callback(x + 1, y);
+            callback(x - 1, y);
         }
-        drawPreview(x, y - 1);
+        callback(x, y - 1);
     } else {
         if (y > 4) {
-            drawPreview(x + 1, y);
-            drawPreview(x - 1, y);
+            callback(x + 1, y);
+            callback(x - 1, y);
         }
-        drawPreview(x, y + 1);
+        callback(x, y + 1);
     }
 }
 
 //车的走路方式
-function onChariotClick(piece, x, y) {
+function foreachPointsChariotCanPlace(piece, callback) {
     function repeat(getNext) {
-        let next = getNext(x, y);
+        let next = getNext(piece.getX(), piece.getY());
         while (true) {
-            drawPreview(next.x, next.y);
+            callback(next.x, next.y);
             if (!isEmpty(next.x, next.y)) {
                 break;
             }
@@ -425,10 +467,13 @@ function onChariotClick(piece, x, y) {
 }
 
 //将的走路方式
-function onGeneralClick(piece, x, y) {
+function foreachPointsGeneralCanPlace(piece, callback) {
+    let x = piece.getX();
+    let y = piece.getY();
+
     function repeat(x, y) {
         if (isInPalace(x, y)) {
-            drawPreview(x, y);
+            callback(x, y);
         }
     }
 
@@ -439,10 +484,13 @@ function onGeneralClick(piece, x, y) {
 }
 
 //士的走路方式
-function onAdvisorClick(piece, x, y) {
+function foreachPointsAdvisorCanPlace(piece, callback) {
+    let x = piece.getX();
+    let y = piece.getY();
+
     function repeat(x, y) {
         if (isInPalace(x, y)) {
-            drawPreview(x, y);
+            callback(x, y);
         }
     }
 
@@ -453,7 +501,10 @@ function onAdvisorClick(piece, x, y) {
 }
 
 //炮的走路方式
-function onCannonClick(piece, x, y) {
+function foreachPointsCannonCanPlace(piece, callback) {
+    let x = piece.getX();
+    let y = piece.getY();
+
     function repeat(getNext) {
         let next = getNext(x, y);
         // 沿着当前方向一直往前，直到碰到棋子或者边界
@@ -461,7 +512,7 @@ function onCannonClick(piece, x, y) {
             if (!isEmpty(next.x, next.y)) {
                 break;
             }
-            drawPreview(next.x, next.y);
+            callback(next.x, next.y);
             next = getNext(next.x, next.y);
         }
         // 如果碰到的是棋子，则可以当做跳板
@@ -473,7 +524,7 @@ function onCannonClick(piece, x, y) {
             } while (isEmpty(next.x, next.y));
             // 如果碰到的是棋子，且不是自己的棋子，则可以当做目标
             if (hasPiece(next.x, next.y) && !isColorTurn(getPiece(next.x, next.y).getColor())) {
-                drawPreview(next.x, next.y);
+                callback(next.x, next.y);
             }
         }
     }
@@ -485,10 +536,13 @@ function onCannonClick(piece, x, y) {
 }
 
 //象的走路方式
-function onElephantClick(piece, x, y) {
+function foreachPointsElephantCanPlace(piece, callback) {
+    let x = piece.getX();
+    let y = piece.getY();
+
     function repeat(offsetX, offsetY) {
         if (getPiece(x + offsetX / 2, y + offsetY / 2) === 0) {
-            drawPreview(x + offsetX, y + offsetY);
+            callback(x + offsetX, y + offsetY);
         }
     }
 
@@ -510,13 +564,16 @@ function onElephantClick(piece, x, y) {
 }
 
 //马的走路方式
-function onHorseClick(piece, x, y) {
+function foreachPointsHorseCanPlace(piece, callback) {
+    let x = piece.getX();
+    let y = piece.getY();
+
     function repeat(offsetX, offsetY, offsetX2, offsetY2) {
         if (hasPiece(x + offsetX2, y + offsetY2)) {
             return;
         }
         if (getPiece(x + offsetX, y + offsetY) === 0) {
-            drawPreview(x + offsetX, y + offsetY);
+            callback(x + offsetX, y + offsetY);
         }
     }
 
@@ -531,29 +588,30 @@ function onHorseClick(piece, x, y) {
 }
 
 //检查双方leader是否撞面
-function checkLeader() {
+// 应该放到beforeMoveCheck的函数中
+function checkGeneral() {
     // TODO
     let y = redLeader.getY() - 1;
     let x = redLeader.getX();
 
-    do{
+    do {
         let type = chessList[y][x];
-        if(hasPiece(x, y)){
-            if(blackLeader.getPieceName() === type.getPieceName()){
+        if (hasPiece(x, y)) {
+            if (blackLeader.getPieceName() === type.getPieceName()) {
                 return ending();
             }
             break;
         }
         y--;
-    } while(y >= 0)
+    } while (y >= 0)
 }
 
 //判断是否将军
-function isEnd(chess){
+function isEnd(chess) {
 
 }
 
 //游戏结束
-function ending(){
+function ending() {
     alert(turn + " WIN !");
 }
