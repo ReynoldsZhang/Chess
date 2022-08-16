@@ -53,6 +53,10 @@ class Piece {
         this.divElement.style.display = "none";
     }
 
+    isGeneralPiece() {
+        return this.pieceName === "将" || this.pieceName === "帅";
+    }
+
     //画棋子
     createPiece() {
         let div = document.createElement("div");
@@ -232,6 +236,17 @@ function getPiece(x, y) {
     return isLegal(x, y) ? pieceList[y][x] : 0;
 }
 
+/**
+ * @param {number} x x坐标
+ * @param {number} y y坐标
+ * @param {function} callback 回调函数
+ */
+function doIfHasPiece(x, y, callback) {
+    if (hasPiece(x, y)) {
+        callback(getPiece(x, y));
+    }
+}
+
 //下一个回合，棋盘和数组进行翻转
 function nextTurn() {
     turn = turn === "red" ? "black" : "red";
@@ -292,7 +307,6 @@ function drawPoint(x, y) {
     previewCtx.arc(spacing / 2 + x * spacing, spacing / 2 + y * spacing, 10, 0, 2 * Math.PI);
     previewCtx.fill();
     previewCtx.closePath();
-    console.log("draw:" + x + "," + y);
     pieceList[y][x] = 1;
 }
 
@@ -328,7 +342,7 @@ function moveSelectedPieceTo(x, y) {
     // 先移动数据层面，不渲染到棋盘
     let prevX = selectedPieceElement.getX();
     let prevY = selectedPieceElement.getY();
-    let prevPiece = getPiece(x, y);
+    let prevPiece = pieceList[x][y];
     clearPreview();
     pieceList[prevY][prevX] = 0;
     selectedPieceElement.setX(x);
@@ -340,7 +354,7 @@ function moveSelectedPieceTo(x, y) {
         selectedPieceElement.setX(prevX);
         selectedPieceElement.setY(prevY);
         pieceList[prevY][prevX] = selectedPieceElement;
-        foreachPointsCanPlace(selectedPieceElement, (x, y) => drawPreview(x, y));
+        selectedPieceElement = null;
         return false;
     } else {
         let style = selectedPieceElement.getDivElement().style;
@@ -360,10 +374,33 @@ function moveSelectedPieceTo(x, y) {
  * @return {boolean} 是否可以移动
  */
 function beforeMoveCheck(x, y) {
+    let canMove = true;
+    for (let i = 0; i < pieceList.length; i++) {
+        for (let j = 0; j < pieceList[i].length; j++) {
+            doIfHasPiece(j, i, function (eachPiece) {
+                foreachPointsCanPlace(eachPiece, function (x, y) {
+                    doIfHasPiece(x, y, function (piece) {
+                        if (piece.isGeneralPiece() && eachPiece.getColor() !== piece.getColor()) {
+                            if (piece.getColor() === turn) {
+                                // TODO
+                                console.log("不可走");
+                                canMove = false;
+                            }else {
+                                // TODO do something when 将军
+                                console.log(eachPiece.getPieceName() + " => " + piece.getPieceName())
+                                console.log("将军");
+                            }
+                        }
+                    })
+                });
+            });
+        }
+    }
+
     // TODO 判断是否可以移动 （在此判断是否可以将军）
     // TODO 下一步不能造成对己方的将军（如移开一个棋子造成将在车的范围内，或移开了马腿让马能够将军），如果造成将军，则应该返回false
     // TODO 如果对敌方能够造成将军，则应该给予提示（alert） 提醒被将军
-    return true;
+    return canMove;
 }
 
 //清除所有之前画的点，在用完成移动棋子之后。
@@ -523,7 +560,7 @@ function foreachPointsCannonCanPlace(piece, callback) {
                 // 直到碰到的不是空位为止
             } while (isEmpty(next.x, next.y));
             // 如果碰到的是棋子，且不是自己的棋子，则可以当做目标
-            if (hasPiece(next.x, next.y) && !isColorTurn(getPiece(next.x, next.y).getColor())) {
+            if (hasPiece(next.x, next.y) && getPiece(next.x, next.y).getColor() !== piece.getColor()) {
                 callback(next.x, next.y);
             }
         }
