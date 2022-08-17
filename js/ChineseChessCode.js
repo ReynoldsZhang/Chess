@@ -382,13 +382,10 @@ function beforeMoveCheck(x, y) {
                     doIfHasPiece(x, y, function (piece) {
                         if (piece.isGeneralPiece() && eachPiece.getColor() !== piece.getColor()) {
                             if (piece.getColor() === turn) {
-                                // TODO
-                                console.log("不可走");
+                                alert("不可走");
                                 canMove = false;
                             }else {
-                                // TODO do something when 将军
-                                console.log(eachPiece.getPieceName() + " => " + piece.getPieceName())
-                                console.log("将军");
+                                alert("将军");
                             }
                         }
                     })
@@ -641,11 +638,6 @@ function checkGeneral() {
         }
         y--;
     } while (y >= 0)
-}
-
-//判断是否将军
-function isEnd(chess) {
-
 }
 
 //游戏结束
