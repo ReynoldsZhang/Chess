@@ -385,7 +385,7 @@ function beforeMoveCheck(x, y) {
                                 alert("不可走");
                                 canMove = false;
                             }else {
-                                alert("将军");
+                                piece.setTarget(true);
                             }
                         }
                     })
