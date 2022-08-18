@@ -237,6 +237,25 @@ function getPiece(x, y) {
 }
 
 /**
+ * @param {number}x
+ * @param {number}y
+ * @param {Piece}piece
+ */
+function setPiece(x, y, piece) {
+    pieceList[y][x] = piece;
+    piece.setX(x);
+    piece.setY(y);
+}
+
+function setPosAsEmpty(x, y) {
+    pieceList[y][x] = 0;
+}
+
+function setPosAsPreview(x, y) {
+    pieceList[y][x] = 1;
+}
+
+/**
  * @param {number} x x坐标
  * @param {number} y y坐标
  * @param {function} callback 回调函数
@@ -342,18 +361,14 @@ function moveSelectedPieceTo(x, y) {
     // 先移动数据层面，不渲染到棋盘
     let prevX = selectedPieceElement.getX();
     let prevY = selectedPieceElement.getY();
-    let prevPiece = pieceList[x][y];
+    let prevPiece = getPiece(x, y);
     clearPreview();
-    pieceList[prevY][prevX] = 0;
-    selectedPieceElement.setX(x);
-    selectedPieceElement.setY(y);
-    pieceList[y][x] = selectedPieceElement;
+    setPosAsEmpty(prevX, prevY);
+    setPiece(x, y, selectedPieceElement);
     // 检测如果移动后是否将军
     if (!beforeMoveCheck(x, y)) {
-        pieceList[y][x] = prevPiece;
-        selectedPieceElement.setX(prevX);
-        selectedPieceElement.setY(prevY);
-        pieceList[prevY][prevX] = selectedPieceElement;
+        setPiece(x, y, prevPiece);
+        setPiece(prevX, prevY, selectedPieceElement);
         selectedPieceElement = null;
         return false;
     } else {
@@ -387,8 +402,10 @@ function beforeMoveCheck(x, y) {
                                 canMove = false;
                             }else {
                                 // TODO do something when 将军
-                                console.log(eachPiece.getPieceName() + " => " + piece.getPieceName())
-                                console.log("将军");
+                                console.log("将军: " + eachPiece.getPieceName() + " => " + piece.getPieceName());
+                                // if (!haveSpaceToMove(piece)) {
+                                //     console.log("输了")
+                                // }
                             }
                         }
                     })
@@ -622,6 +639,19 @@ function foreachPointsHorseCanPlace(piece, callback) {
     repeat(2, -1, 1, 0);
     repeat(-2, 1, -1, 0);
     repeat(-2, -1, -1, 0);
+}
+
+/**
+ * @param {Piece} piece
+ * @return {boolean}
+ */
+function haveSpaceToMove(piece) {
+    // TODO not implement yet
+    let haveSpace = false;
+    foreachPointsCanPlace(piece, function (x, y) {
+        haveSpace = true;
+    });
+    return haveSpace;
 }
 
 //检查双方leader是否撞面
