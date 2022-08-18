@@ -385,11 +385,7 @@ function beforeMoveCheck(x, y) {
                                 alert("不可走");
                                 canMove = false;
                             }else {
-                                // TODO do something when 将军
-                                console.log("将军: " + eachPiece.getPieceName() + " => " + piece.getPieceName());
-                                // if (!haveSpaceToMove(piece)) {
-                                //     console.log("输了")
-                                // }
+                                piece.setTarget(true);
                             }
                         }
                     })
@@ -397,10 +393,10 @@ function beforeMoveCheck(x, y) {
             });
         }
     }
-
-    // TODO 判断是否可以移动 （在此判断是否可以将军）
-    // TODO 下一步不能造成对己方的将军（如移开一个棋子造成将在车的范围内，或移开了马腿让马能够将军），如果造成将军，则应该返回false
-    // TODO 如果对敌方能够造成将军，则应该给予提示（alert） 提醒被将军
+    if(checkGeneral()){
+        alert("不可走");
+        canMove = false;
+    }
     return canMove;
 }
 
@@ -633,15 +629,16 @@ function checkGeneral() {
     let x = redLeader.getX();
 
     do {
-        let type = chessList[y][x];
+        let type = pieceList[y][x];
         if (hasPiece(x, y)) {
             if (blackLeader.getPieceName() === type.getPieceName()) {
-                return ending();
+                return true;
             }
             break;
         }
         y--;
     } while (y >= 0)
+    return false;
 }
 
 //游戏结束
