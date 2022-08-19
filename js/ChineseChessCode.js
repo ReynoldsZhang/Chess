@@ -377,7 +377,7 @@ let willKillLeaderPiece = [];
  */
 function willKillLeaderAnyway(){
     //TODO 先判断leader除了本身位置以外，是否有可以移动且不会被再次将军的位置
-    //TODO 再判断将军的那颗棋子是否会被我放的棋子干扰或者直接吃掉，且干扰过后不会形成再次将军。就是绝杀
+    //TODO 再判断将军的那颗棋子是否会被我方的棋子干扰或者直接吃掉，且干扰过后不会直接促使再次将军。
     // TODO 可能需要多次遍历棋盘
     // 获取了将、帅当前的位置
     let x = turn === 'red'? redLeader.getX() : blackLeader.getX();
