@@ -350,6 +350,7 @@ function moveSelectedPieceTo(x, y) {
     pieceList[y][x] = selectedPieceElement;
     // 检测如果移动后是否将军
     if (!beforeMoveCheck(x, y)) {
+        if(willKillLeaderAnyway()) return ending();
         pieceList[y][x] = prevPiece;
         selectedPieceElement.setX(prevX);
         selectedPieceElement.setY(prevY);
@@ -357,6 +358,7 @@ function moveSelectedPieceTo(x, y) {
         selectedPieceElement = null;
         return false;
     } else {
+        willKillLeaderPiece.length = 0;
         let style = selectedPieceElement.getDivElement().style;
         style.transitionDuration = ".5s";
         style.zIndex = "10";
@@ -367,6 +369,22 @@ function moveSelectedPieceTo(x, y) {
     }
 }
 
+let willKillLeaderPiece = [];
+
+/**
+ * 判断是否绝杀
+ * @returns {boolean}
+ */
+function willKillLeaderAnyway(){
+    //TODO 先判断leader除了本身位置以外，是否有可以移动且不会被再次将军的位置
+    //TODO 再判断将军的那颗棋子是否会被我放的棋子干扰或者直接吃掉，且干扰过后不会形成再次将军。就是绝杀
+    // TODO 可能需要多次遍历棋盘
+    let x = turn === 'red'? redLeader.getX() : blackLeader.getX();
+    let y = turn === 'red'? redLeader.getY() : blackLeader.getY();
+
+    return false;
+}
+
 /**
  *
  * @param x 新的x坐标
@@ -375,6 +393,7 @@ function moveSelectedPieceTo(x, y) {
  */
 function beforeMoveCheck(x, y) {
     let canMove = true;
+
     for (let i = 0; i < pieceList.length; i++) {
         for (let j = 0; j < pieceList[i].length; j++) {
             doIfHasPiece(j, i, function (eachPiece) {
@@ -386,6 +405,7 @@ function beforeMoveCheck(x, y) {
                                 canMove = false;
                             }else {
                                 piece.setTarget(true);
+                                willKillLeaderPiece.push(eachPiece);
                             }
                         }
                     })
@@ -644,4 +664,5 @@ function checkGeneral() {
 //游戏结束
 function ending() {
     alert(turn + " WIN !");
+    return false;
 }
