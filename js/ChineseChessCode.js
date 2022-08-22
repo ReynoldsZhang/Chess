@@ -667,3 +667,12 @@ function ending() {
     alert(turn + " WIN !");
     return false;
 }
+
+const startButton = document.getElementById('start');
+startButton.onclick = function (){
+    document.getElementById("board-wrapper").style.display = "block";
+    document.getElementById("board-wrapper").style.animation = "show 1s ease-in-out forwards";
+    document.getElementById("start").style.display = "none";
+    document.getElementById('turn').style.display = "block";
+    document.getElementById('turn').style.animation = "show 1s ease-in-out forwards";
+}

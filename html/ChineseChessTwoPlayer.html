@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Chinese Chess</title>
+
    <link rel="stylesheet" type="text/css" href="../css/ChineseChessCSS.css">
+
 </head>
 <body>
 <div id="board-wrapper">
@@ -11,6 +13,15 @@
     <p class="piece-name">楚&nbsp;&nbsp;河&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;汉&nbsp;&nbsp;界</p>
     <canvas id="board-preview-points"></canvas>
     <div id="pieces-wrapper"></div>
+</div>
+<div class = "buttons">
+    <div class="button" id = "turn">
+        本回合是:
+        <span id="color">黑方</span>
+    </div>
+    <div class="button" id="start">
+        开始
+    </div>
 </div>
 
 <script type="text/javascript" src="../js/ChineseChessCode.js"></script>

@@ -16,7 +16,8 @@ body {
     position: absolute;
     left: 50%;
     top: 100px;
-    animation: show 1s;
+    opacity: 0;
+    display: none;
 }
 
 /*棋盘的样式*/
@@ -59,7 +60,7 @@ p {
     cursor: pointer;
     box-shadow: 2px 2px 1px 2px #6e5c3e;
     background-color: peru;
-    /*animation: changeColor 1s;*/
+    animation: changeColor 1s;
 }
 
 /*棋子名字的CSS*/
@@ -75,6 +76,46 @@ p {
 
 .piece-opponent {
     transform: rotate(180deg);
+}
+
+.buttons {
+    width: 200px;
+    height: 400px;
+    position: absolute;
+    left: 310px;
+    top: 100px;
+    font-family: WeiTi, serif;
+    text-align: center;
+}
+
+.button {
+    width: 150px;
+    height: 80px;
+    border: none;
+    color: black;
+    background-color: #eff0ef;
+    margin-bottom: 20px;
+}
+
+#turn {
+    font-size: 20px;
+    line-height: 80px;
+    transition-duration: 1s;
+    animation: show 2s forwards;
+    display: none;
+    opacity: 0;
+}
+
+#start{
+    font-size: 30px;
+    transition-duration: 1s;
+    animation: show 2s forwards;
+    opacity: 1;
+}
+
+#start:hover {
+    cursor: pointer;
+    background-color: #cccccc;
 }
 
 @font-face {
@@ -119,5 +160,14 @@ p {
     }
     to {
         background-color: peru;
+    }
+}
+
+@keyframes toHide {
+    from{
+        opacity:1;
+    }
+    to{
+        opacity:0;
     }
 }
