@@ -251,6 +251,7 @@ function doIfHasPiece(x, y, callback) {
 function nextTurn() {
     turn = turn === "red" ? "black" : "red";
     selectedPieceElement = null;
+    changeTurn();
     /*
     if (turn === "black") {
         document.getElementById("board-wrapper").style.animation = "rotateToBlack 2s ease-in-out forwards";
@@ -674,5 +675,25 @@ startButton.onclick = function (){
     document.getElementById("board-wrapper").style.animation = "show 1s ease-in-out forwards";
     document.getElementById("start").style.display = "none";
     document.getElementById('turn').style.display = "block";
-    document.getElementById('turn').style.animation = "show 1s ease-in-out forwards";
+    document.getElementById('turn').style.backgroundColor = 'red';
+    document.getElementById('back').style.display = 'block';
+}
+
+//回合显示
+const color = document.getElementById('color');
+const changer = document.getElementById('turn');
+function changeTurn (){
+    if(turn === 'red'){
+        color.innerText = "红方";
+        changer.style.animation = 'toRed 1s ease-in-out forwards';
+    } else {
+        color.innerText = "黑方";
+        changer.style.animation = 'toBlack 1s ease-in-out forwards';
+    }
+}
+
+//返回健
+const backButton = document.getElementById('back');
+backButton.onclick = function(){
+    window.open("ChineseChessTwoPlayer.html", target = "_self");
 }

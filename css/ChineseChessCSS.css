@@ -82,9 +82,10 @@ p {
     width: 200px;
     height: 400px;
     position: absolute;
-    left: 310px;
+    left: 300px;
     top: 100px;
     font-family: WeiTi, serif;
+    /*text-align: center;*/
     text-align: center;
 }
 
@@ -100,10 +101,10 @@ p {
 #turn {
     font-size: 20px;
     line-height: 80px;
+    text-align: center;
     transition-duration: 1s;
     animation: show 2s forwards;
     display: none;
-    opacity: 0;
 }
 
 #start{
@@ -114,6 +115,18 @@ p {
 }
 
 #start:hover {
+    cursor: pointer;
+    background-color: #cccccc;
+}
+
+#back{
+    font-size: 30px;
+    transition-duration: 1s;
+    animation: show 2s forwards;
+    display: none;
+}
+
+#back:hover{
     cursor: pointer;
     background-color: #cccccc;
 }
@@ -169,5 +182,27 @@ p {
     }
     to{
         opacity:0;
+    }
+}
+
+@keyframes toBlack {
+    from {
+        background-color: #ff3e33;
+        color: black;
+    }
+    to {
+        background-color: black;
+        color: #ff3e33;
+    }
+}
+
+@keyframes toRed {
+    from{
+        background-color: black;
+        color: #ff3e33;
+    }
+    to {
+        background-color: #ff3e33;
+        color: black;
     }
 }
