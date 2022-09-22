@@ -252,13 +252,13 @@ function nextTurn() {
     turn = turn === "red" ? "black" : "red";
     selectedPieceElement = null;
     changeTurn();
-    /*
+    
     if (turn === "black") {
         document.getElementById("board-wrapper").style.animation = "rotateToBlack 2s ease-in-out forwards";
     } else {
         document.getElementById("board-wrapper").style.animation = "rotateToRed 2s ease-in-out forwards";
     }
-     */
+     
 }
 
 /**
