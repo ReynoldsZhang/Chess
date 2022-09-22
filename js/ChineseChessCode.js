@@ -380,10 +380,39 @@ function willKillLeaderAnyway(){
     //TODO 先判断leader除了本身位置以外，是否有可以移动且不会被再次将军的位置
     //TODO 再判断将军的那颗棋子是否会被我方的棋子干扰或者直接吃掉，且干扰过后不会直接促使再次将军。
     // TODO 可能需要多次遍历棋盘
-    // 获取了将、帅当前的位置
-    let x = turn === 'red'? redLeader.getX() : blackLeader.getX();
-    let y = turn === 'red'? redLeader.getY() : blackLeader.getY();
+    let counter = 0;
+    
+    for (let a = 0; a < pieceList.lengt; a++) {
+        for(let b = 0; b < pieceList[a].length; b++){
+            if (!hasPiece(b, a)) {
+                continue;
+            }
+            let piece = pieceList[a][b];
+            if (!isColorTurn(div.style.color)) {
+                continue;
+            }
+            let x = piece.getX;
+            let y = piece.getY;
 
+            for (let i = 0; i < pieceList.length; i++) {
+                for (let j = 0; j < pieceList[i].length; j++) {
+                    doIfHasPiece(j, i, function (eachPiece) {
+                        foreachPointsCanPlace(eachPiece, function (x, y) {
+                            doIfHasPiece(x, y, function (piece) {
+                                if (piece.isGeneralPiece() && eachPiece.getColor() !== piece.getColor()) {
+                                    if (piece.getColor() === turn) {
+                                        counter++;
+                                    }else {
+                                        return false;
+                                    }
+                                }
+                            })
+                        });
+                    });
+                }
+            }
+        }
+    }
     return false;
 }
 
@@ -395,6 +424,7 @@ function willKillLeaderAnyway(){
  */
 function beforeMoveCheck(x, y) {
     let canMove = true;
+    
 
     for (let i = 0; i < pieceList.length; i++) {
         for (let j = 0; j < pieceList[i].length; j++) {
