@@ -85,6 +85,7 @@ class Piece {
                     //用于表示棋子吃掉对方的操作
                     if (piece.isTarget()) {
                         if (moveSelectedPieceTo(x, y)) {
+                            if(isGeneralAlive(piece)) ending();
                             piece.eaten();
                             nextTurn();
                         }
@@ -351,7 +352,6 @@ function moveSelectedPieceTo(x, y) {
     pieceList[y][x] = selectedPieceElement;
     // 检测如果移动后是否将军
     if (!beforeMoveCheck(x, y)) {
-        if(willKillLeaderAnyway()) return ending();
         pieceList[y][x] = prevPiece;
         selectedPieceElement.setX(prevX);
         selectedPieceElement.setY(prevY);
@@ -359,18 +359,16 @@ function moveSelectedPieceTo(x, y) {
         selectedPieceElement = null;
         return false;
     } else {
-        willKillLeaderPiece.length = 0;
         let style = selectedPieceElement.getDivElement().style;
         style.transitionDuration = ".5s";
         style.zIndex = "10";
         setTimeout(() => style.zIndex = "1", 1000)
         style.left = x * 50 + 5 + 'px';
         style.top = y * 50 + 5 + 'px';
+        //if(willKillLeaderAnyway()) return ending();
         return true;
     }
 }
-
-let willKillLeaderPiece = [];
 
 /**
  * 判断是否绝杀
@@ -382,17 +380,18 @@ function willKillLeaderAnyway(){
     // TODO 可能需要多次遍历棋盘
     let counter = 0;
     
-    for (let a = 0; a < pieceList.lengt; a++) {
-        for(let b = 0; b < pieceList[a].length; b++){
+    for (let a = 0; a < pieceList.length; a++) {
+        for(let b = 0; b < pieceList[i].length; b++){
             if (!hasPiece(b, a)) {
                 continue;
             }
+
             let piece = pieceList[a][b];
-            if (!isColorTurn(div.style.color)) {
+            if (isColorTurn(piece.getColor())) {
                 continue;
             }
-            let x = piece.getX;
-            let y = piece.getY;
+            let x = piece.getX();
+            let y = piece.getY();
 
             for (let i = 0; i < pieceList.length; i++) {
                 for (let j = 0; j < pieceList[i].length; j++) {
@@ -400,7 +399,7 @@ function willKillLeaderAnyway(){
                         foreachPointsCanPlace(eachPiece, function (x, y) {
                             doIfHasPiece(x, y, function (piece) {
                                 if (piece.isGeneralPiece() && eachPiece.getColor() !== piece.getColor()) {
-                                    if (piece.getColor() === turn) {
+                                    if (piece.getColor() !== turn) {
                                         counter++;
                                     }else {
                                         return false;
@@ -412,6 +411,9 @@ function willKillLeaderAnyway(){
                 }
             }
         }
+    }
+    if(counter >= 16){
+        return true;
     }
     return false;
 }
@@ -437,7 +439,6 @@ function beforeMoveCheck(x, y) {
                                 canMove = false;
                             }else {
                                 piece.setTarget(true);
-                                willKillLeaderPiece.push(eachPiece);
                             }
                         }
                     })
@@ -696,6 +697,13 @@ function checkGeneral() {
 //游戏结束
 function ending() {
     alert(turn + " WIN !");
+    return false;
+}
+
+function isGeneralAlive(piece){
+    if(piece.isGeneralPiece()){
+        return true;
+    }
     return false;
 }
 
