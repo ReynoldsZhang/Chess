@@ -357,6 +357,7 @@ function moveSelectedPieceTo(x, y) {
         selectedPieceElement.setY(prevY);
         pieceList[prevY][prevX] = selectedPieceElement;
         selectedPieceElement = null;
+        alert("Can't move");
         return false;
     } else {
         let style = selectedPieceElement.getDivElement().style;
@@ -365,7 +366,7 @@ function moveSelectedPieceTo(x, y) {
         setTimeout(() => style.zIndex = "1", 1000)
         style.left = x * 50 + 5 + 'px';
         style.top = y * 50 + 5 + 'px';
-        //if(willKillLeaderAnyway()) return ending();
+        if(willKillLeaderAnyway()) return ending();
         return true;
     }
 }
@@ -377,45 +378,24 @@ function moveSelectedPieceTo(x, y) {
 function willKillLeaderAnyway(){
     //TODO 先判断leader除了本身位置以外，是否有可以移动且不会被再次将军的位置
     //TODO 再判断将军的那颗棋子是否会被我方的棋子干扰或者直接吃掉，且干扰过后不会直接促使再次将军。
-    // TODO 可能需要多次遍历棋盘
+    //TODO 可能需要多次遍历棋盘
     let counter = 0;
-    
-    for (let a = 0; a < pieceList.length; a++) {
-        for(let b = 0; b < pieceList[i].length; b++){
-            if (!hasPiece(b, a)) {
+
+    for (let i = 0; i < pieceList.length; i++) {
+        for (let j = 0; j < pieceList[i].length; j++) {
+            if(!hasPiece(j, i)){
                 continue;
             }
-
-            let piece = pieceList[a][b];
-            if (isColorTurn(piece.getColor())) {
+            if(isColorTurn(getPiece(j, i).getColor())){
                 continue;
             }
-            let x = piece.getX();
-            let y = piece.getY();
-
-            for (let i = 0; i < pieceList.length; i++) {
-                for (let j = 0; j < pieceList[i].length; j++) {
-                    doIfHasPiece(j, i, function (eachPiece) {
-                        foreachPointsCanPlace(eachPiece, function (x, y) {
-                            doIfHasPiece(x, y, function (piece) {
-                                if (piece.isGeneralPiece() && eachPiece.getColor() !== piece.getColor()) {
-                                    if (piece.getColor() !== turn) {
-                                        counter++;
-                                    }else {
-                                        return false;
-                                    }
-                                }
-                            })
-                        });
-                    });
-                }
+            if(!beforeMoveCheck(j, i)){
+                counter++;
             }
         }
     }
-    if(counter >= 16){
-        return true;
-    }
-    return false;
+    console.log(counter);
+    return counter >= 14;
 }
 
 /**
@@ -426,7 +406,6 @@ function willKillLeaderAnyway(){
  */
 function beforeMoveCheck(x, y) {
     let canMove = true;
-    
 
     for (let i = 0; i < pieceList.length; i++) {
         for (let j = 0; j < pieceList[i].length; j++) {
@@ -435,7 +414,6 @@ function beforeMoveCheck(x, y) {
                     doIfHasPiece(x, y, function (piece) {
                         if (piece.isGeneralPiece() && eachPiece.getColor() !== piece.getColor()) {
                             if (piece.getColor() === turn) {
-                                alert("不可走");
                                 canMove = false;
                             }else {
                                 piece.setTarget(true);
@@ -447,7 +425,6 @@ function beforeMoveCheck(x, y) {
         }
     }
     if(checkGeneral()){
-        alert("不可走");
         canMove = false;
     }
     return canMove;
